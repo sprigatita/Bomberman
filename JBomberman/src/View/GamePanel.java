@@ -16,7 +16,8 @@ public class GamePanel extends JPanel implements Runnable {
 	private static final int Y_TILES = 12;
 	private static final int TILE_SIZE = 16;
 	private static final int SCALING_CONST = 3;
-	private char dir = 'd';
+	private static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
+
 	public static int getPanelWidth() {
 		return X_TILES*FINAL_TILE_SIZE;
 	}
@@ -25,7 +26,6 @@ public class GamePanel extends JPanel implements Runnable {
 		return Y_TILES*FINAL_TILE_SIZE;
 	}
 	
-	private static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
 	
 	BombermanView c = new BombermanView();
 	Bomberman b = Bomberman.getInstance();
