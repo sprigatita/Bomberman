@@ -33,7 +33,7 @@ public class MapModel {
 		TileModel[] c = new TileModel[ss.length];
 
 		
-		for (int i=0; i<=ss.length; i++) {
+		for (int i=0; i<ss.length; i++) {
 			c[i] = new TileModel(Integer.parseInt(ss[i]));
 		}
 		
