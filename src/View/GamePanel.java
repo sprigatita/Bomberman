@@ -12,11 +12,15 @@ import java.awt.Graphics2D;
 
 public class GamePanel extends JPanel implements Runnable {
 	
-	private static final int X_TILES = 16;
-	private static final int Y_TILES = 12;
-	private static final int TILE_SIZE = 16;
-	private static final int SCALING_CONST = 3;
+	public static final int X_TILES = 16;
+	public static final int Y_TILES = 12;
+	public static final int TILE_SIZE = 16;
+	public static final int SCALING_CONST = 3;
 	private char dir = 'd';
+	public static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
+	
+	
+	
 	public static int getPanelWidth() {
 		return X_TILES*FINAL_TILE_SIZE;
 	}
@@ -25,11 +29,11 @@ public class GamePanel extends JPanel implements Runnable {
 		return Y_TILES*FINAL_TILE_SIZE;
 	}
 	
-	private static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
 	
 	BombermanView c = new BombermanView();
 	Bomberman b = Bomberman.getInstance();
 	TileView terrain = new TileView();
+	TileModel[][] map_structure = ( new MapModel("src/resources/map.txt") ).getMapStructure();
 	ControlsHandler controls;
 	
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
@@ -48,8 +52,8 @@ public class GamePanel extends JPanel implements Runnable {
 		Graphics2D gg = (Graphics2D)g;
 		super.paintComponent(gg);
 		g.drawImage(terrain.getTileSamples(0), 0, 0, 16*SCALING_CONST, 16*SCALING_CONST, null);
+		terrain.drawTile(g, map_structure);
 		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
-	
 	}
 
 	@Override

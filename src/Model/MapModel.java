@@ -10,7 +10,7 @@ public class MapModel {
 	private TileModel[][] mapStructure;
 	
 	
-	public void createMapStructure(String path) {
+	public MapModel(String path) {
 		
 		Stream<String> mapText;
 		
@@ -38,6 +38,10 @@ public class MapModel {
 		}
 		
 		return c;
+	}
+
+	public TileModel[][] getMapStructure() {
+		return mapStructure;
 	}
 	
 }
