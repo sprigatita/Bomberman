@@ -10,7 +10,6 @@ import View.GamePanel;
 public class ControlsHandler implements KeyListener{
 	Bomberman b = Bomberman.getInstance();
 	BombermanView s;
-	System.out.println("love ya");
 	
 	private static final int WINDOW_WIDTH = GamePanel.getPanelWidth();
 	private static final int WINDOW_HEIGHT = GamePanel.getPanelHeight();
