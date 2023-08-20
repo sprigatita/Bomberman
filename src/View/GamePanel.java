@@ -113,14 +113,15 @@ public class GamePanel extends JPanel implements Runnable {
 	 * nessuno dei due angoli finisce in un blocco con collisione) allora si può effettuare il movimento.
 	 */
 	public void updatePos() {
-		int HitBoxUpperLeft_x = b.getPos_x();
-		int HitBoxUpperLeft_y = b.getPos_y();
-		int HitBoxUpperRight_x = b.getPos_x() + c.getSpriteWidth()*2-3;
-		int HitBoxUpperRight_y = b.getPos_y();
-		int HitBoxBottomLeft_x = b.getPos_x();
-		int HitBoxBottomLeft_y = b.getPos_y() + c.getSpriteHeight()*2-3;
-		int HitBoxBottomRight_x = b.getPos_x() + c.getSpriteWidth()*2-3;
-		int HitBoxBottomRight_y = b.getPos_y() + c.getSpriteHeight()*2-3;
+		int border_const = 5;
+		int HitBoxUpperLeft_x = b.getPos_x()+10;
+		int HitBoxUpperLeft_y = b.getPos_y() + c.getSpriteHeight();
+		int HitBoxUpperRight_x = b.getPos_x() + c.getSpriteWidth()*2-border_const*2;
+		int HitBoxUpperRight_y = b.getPos_y() + c.getSpriteHeight();
+		int HitBoxBottomLeft_x = b.getPos_x()+border_const*2;
+		int HitBoxBottomLeft_y = b.getPos_y() + c.getSpriteHeight()*2;
+		int HitBoxBottomRight_x = b.getPos_x() + c.getSpriteWidth()*2-border_const*2;
+		int HitBoxBottomRight_y = b.getPos_y() + c.getSpriteHeight()*2;
 		if (controls.isUp() == true && 	b.getPos_y()-Bomberman.getMoveSpeed() >= 0) {
 			boolean canMove = checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
 			if (canMove) {
