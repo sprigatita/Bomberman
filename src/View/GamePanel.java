@@ -52,7 +52,7 @@ public class GamePanel extends JPanel implements Runnable {
 		Graphics2D gg = (Graphics2D)g;
 		super.paintComponent(gg);
 		g.drawImage(terrain.getTileSamples(0), 0, 0, 16*SCALING_CONST, 16*SCALING_CONST, null);
-		terrain.drawTile(g, map_structure);
+//		terrain.drawTile(g, map_structure);
 		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
 	}
 
