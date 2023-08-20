@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
 
 public class GamePanel extends JPanel implements Runnable {
@@ -16,10 +17,10 @@ public class GamePanel extends JPanel implements Runnable {
 	public static final int Y_TILES = 12;
 	public static final int TILE_SIZE = 16;
 	public static final int SCALING_CONST = 3;
-	private char dir = 'd';
 	public static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
 	
-	
+	ArrayList<BombModel> placedBombs = new ArrayList<BombModel>();
+	BombView bombView = new BombView();
 	
 	public static int getPanelWidth() {
 		return X_TILES*FINAL_TILE_SIZE;
@@ -57,6 +58,9 @@ public class GamePanel extends JPanel implements Runnable {
 		super.paintComponent(gg);
 		terrain.drawTile(g, map_structure);
 		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
+		for (BombModel bomb : placedBombs) {
+			bombView.drawBomb(g, bomb.getPos_x(), bomb.getPos_y());
+		}
 	}
 
 	@Override
@@ -158,6 +162,13 @@ public class GamePanel extends JPanel implements Runnable {
 				c.setNextRight();			
 			}
 			
+		}
+	}
+	
+	public void placeBomb() {
+		if (controls.isSpace()) {
+			//ricordare di mettere i controlli e il timer per le bombe!!!!!!!!
+			placedBombs.add(new BombModel(b.getPos_x(), b.getPos_y()));
 		}
 	}
 	
