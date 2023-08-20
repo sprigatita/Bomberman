@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
 import Model.TileModel;
 
 public class TileView {
-	
-	private BufferedImage[] tileSamples = new BufferedImage[23];
+	private int num_of_samples = 24;
+	private BufferedImage[] tileSamples = new BufferedImage[num_of_samples];
 	
 	public BufferedImage getTileSamples(int i) {
 		return tileSamples[i];
@@ -25,7 +25,7 @@ public class TileView {
 			
 			String filename = "src/resources/";
 			
-			for (int n = 1; n < 24; n++) {
+			for (int n = 1; n <= num_of_samples; n++) {
 					tileSamples[n-1] = ImageIO.read(new File(filename + n + ".png"));
 				}
 
