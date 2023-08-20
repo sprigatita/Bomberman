@@ -2,9 +2,19 @@ package Model;
 
 public class TileModel {
 	
+
+
 	private int model_num;
-	private boolean setCollision = false;
+	private boolean collision = true;
 	
+	public boolean getCollision() {
+		return collision;
+	}
+	
+	
+	public void setCollision(boolean setCollision) {
+		this.collision = setCollision;
+	}
 	
 	
 	

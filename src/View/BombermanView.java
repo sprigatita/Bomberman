@@ -20,7 +20,6 @@ public class BombermanView implements Observer {
     private int leftCount = 0;
     private int rightCount = 0;
     
-    
 	final int SCALING_CONST = 3;
 	final int ANIMATION_SPEED = 6;
 	

@@ -8,17 +8,20 @@ import java.util.stream.Stream;
 public class MapModel {
 	
 	private TileModel[][] mapStructure;
+	private int[] config;
 	
-	
-	public MapModel(String path) {
+	public MapModel(String path, int[] config) {
 		
+		this.config = config;
 		Stream<String> mapText;
+		
 		
 		try {
 			File file = new File(path);
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			mapText = br.lines();
 			this.mapStructure = mapText.map(MapModel::tileMapping).toArray(TileModel[][]::new);
+			configureCollision();
 			
 		}
 		catch (Exception e) {
@@ -26,6 +29,19 @@ public class MapModel {
 		}
 		
 		
+	}
+	
+	public void configureCollision() {
+		for (int i = 0; i < mapStructure.length; i++) {
+			for (int j = 0; j < mapStructure[0].length; j++) {
+				for (int c : config) {
+					if (mapStructure[i][j].getModel_num() == c) {
+						mapStructure[i][j].setCollision(false);
+						break;
+					}
+				}
+			}
+		}
 	}
 	
 	public static TileModel[] tileMapping(String s) {
