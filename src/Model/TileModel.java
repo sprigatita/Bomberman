@@ -3,6 +3,9 @@ package Model;
 public class TileModel {
 	
 	private int model_num;
+	private boolean setCollision = false;
+	
+	
 	
 	
 	public int getModel_num() {

@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import Model.TileModel;
 
 public class TileView {
+	String mapName;
 	private int num_of_samples = 24;
 	private BufferedImage[] tileSamples = new BufferedImage[num_of_samples];
 	
@@ -16,7 +17,8 @@ public class TileView {
 		return tileSamples[i];
 	}
 	
-	public TileView() {
+	public TileView(String mapName) {
+		this.mapName = mapName + "/";
 		createBasicTerrain();
 	}
 	
@@ -26,7 +28,7 @@ public class TileView {
 			String filename = "src/resources/";
 			
 			for (int n = 1; n <= num_of_samples; n++) {
-					tileSamples[n-1] = ImageIO.read(new File(filename + n + ".png"));
+					tileSamples[n-1] = ImageIO.read(new File(filename + mapName + n + ".png"));
 				}
 
 		} catch (IOException e) {

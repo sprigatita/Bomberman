@@ -32,7 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	BombermanView c = new BombermanView();
 	Bomberman b = Bomberman.getInstance();
-	TileView terrain = new TileView();
+	TileView terrain = new TileView("green_village");
 	TileModel[][] map_structure = ( new MapModel("src/resources/map.txt") ).getMapStructure();
 	ControlsHandler controls;
 	
