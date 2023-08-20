@@ -21,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	ArrayList<BombModel> placedBombs = new ArrayList<BombModel>();
 	BombView bombView = new BombView();
+	private int bombTimer = 0;
 	
 	public static int getPanelWidth() {
 		return X_TILES*FINAL_TILE_SIZE;
@@ -57,31 +58,20 @@ public class GamePanel extends JPanel implements Runnable {
 		Graphics2D gg = (Graphics2D)g;
 		super.paintComponent(gg);
 		terrain.drawTile(g, map_structure);
-		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
 		for (BombModel bomb : placedBombs) {
 			bombView.drawBomb(g, bomb.getPos_x(), bomb.getPos_y());
 		}
+		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
 	}
 
 	@Override
 	public void run() {
 		
-		for (int i =0 ; i < map_structure.length; i++) {
-			for (int j = 0; j < map_structure[0].length; j++) {
-				char ch;
-				if (map_structure[i][j].getCollision() == true) {
-					ch = 'O';
-				}
-				else {
-					ch = 'X';
-				}
-				System.out.print(ch + " ");
-			}
-			System.out.println();
-		}
 		while(true) {
 			updatePos();
+			placeBomb();
 			repaint();
+			bombTimer -= 3;
 			
 			//Lo sleep lancia un'eccezione non gestita
 			try {
@@ -125,12 +115,12 @@ public class GamePanel extends JPanel implements Runnable {
 	public void updatePos() {
 		int HitBoxUpperLeft_x = b.getPos_x();
 		int HitBoxUpperLeft_y = b.getPos_y();
-		int HitBoxUpperRight_x = b.getPos_x() + c.getSpriteWidth()*2;
+		int HitBoxUpperRight_x = b.getPos_x() + c.getSpriteWidth()*2-3;
 		int HitBoxUpperRight_y = b.getPos_y();
 		int HitBoxBottomLeft_x = b.getPos_x();
-		int HitBoxBottomLeft_y = b.getPos_y() + c.getSpriteHeight()*2;
-		int HitBoxBottomRight_x = b.getPos_x() + c.getSpriteWidth()*2;
-		int HitBoxBottomRight_y = b.getPos_y() + c.getSpriteHeight()*2;
+		int HitBoxBottomLeft_y = b.getPos_y() + c.getSpriteHeight()*2-3;
+		int HitBoxBottomRight_x = b.getPos_x() + c.getSpriteWidth()*2-3;
+		int HitBoxBottomRight_y = b.getPos_y() + c.getSpriteHeight()*2-3;
 		if (controls.isUp() == true && 	b.getPos_y()-Bomberman.getMoveSpeed() >= 0) {
 			boolean canMove = checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
 			if (canMove) {
@@ -167,9 +157,15 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public void placeBomb() {
 		if (controls.isSpace()) {
-			//ricordare di mettere i controlli e il timer per le bombe!!!!!!!!
-			placedBombs.add(new BombModel(b.getPos_x(), b.getPos_y()));
+			
+			if (bombTimer <= 0) {
+				//ricordare di mettere i controlli e il timer per le bombe!!!!!!!!
+				placedBombs.add(new BombModel(b.getPos_x(), b.getPos_y()));
+				bombTimer = 100;
+			}
+			
 		}
+		
 	}
 	
 	
