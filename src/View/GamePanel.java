@@ -89,6 +89,11 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	
+	/*
+	 * funzione che controlla se due punti si trovano in un blocco con la collision attiva. Ritorna un valore
+	 * true se e solo se entrambi i punti non si trovano in un blocco con la collision attiva
+	 */
+	
 	private boolean checkCollision(int corner1_x, int corner1_y, int corner2_x, int corner2_y) {
 		
 		int corner1_tile_x = corner1_x/FINAL_TILE_SIZE;
@@ -105,7 +110,14 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 	
-	//Funzione per modificare posizione del personaggio, delle bombe, dei nemici, all'interno di un loop
+	/*
+	 * Funzione per aggiornare le posizioni.
+	 * 
+	 * Collision: viene chiamata checkCollision su una coppia di angoli di una HitBox (i due angoli superiori se si va in alto,
+	 * i due angoli sinistri se si va a sinistra e così via..) La chiamata viene effettuata passandogli i valori degli angoli
+	 * che si dovrebbero avere dopo il movimento (si fa una previsione). Se la funzione checkCollision ritorna true (e quindi
+	 * nessuno dei due angoli finisce in un blocco con collisione) allora si può effettuare il movimento.
+	 */
 	public void updatePos() {
 		int HitBoxUpperLeft_x = b.getPos_x();
 		int HitBoxUpperLeft_y = b.getPos_y();

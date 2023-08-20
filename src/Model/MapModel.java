@@ -8,6 +8,8 @@ import java.util.stream.Stream;
 public class MapModel {
 	
 	private TileModel[][] mapStructure;
+	
+	//File di configurazione per indicare, insieme alla mappa, quali blocchi devono avere la collision attiva.
 	private int[] config;
 	
 	public MapModel(String path, int[] config) {
@@ -21,6 +23,7 @@ public class MapModel {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			mapText = br.lines();
 			this.mapStructure = mapText.map(MapModel::tileMapping).toArray(TileModel[][]::new);
+			//fa un ulteriore passaggio sulla mapStructure per settare i blocchi con la collision in base al config
 			configureCollision();
 			
 		}
@@ -31,6 +34,10 @@ public class MapModel {
 		
 	}
 	
+	/*
+	 * Funzione per impostare la collisione sulla mapStructure. Scorre su tutti i singoli TileModel della mapStructure e
+	 * se il loro modelNum corrisponde ad uno dei valori nel file di config, attiva la collision su quel Tile
+	 */
 	public void configureCollision() {
 		for (int i = 0; i < mapStructure.length; i++) {
 			for (int j = 0; j < mapStructure[0].length; j++) {
