@@ -11,7 +11,7 @@ public class FinestraDiGioco extends JFrame {
     public void init() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
-        this.setTitle("JBomberman - Marta Randazzo");
+        this.setTitle("JBomberman - Mignola col Prof");
         this.setLocationRelativeTo(null);
         
     }

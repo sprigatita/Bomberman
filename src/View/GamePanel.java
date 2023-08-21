@@ -35,6 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
 	BombermanView c = new BombermanView();
 	Bomberman b = Bomberman.getInstance();
 	Enemy e = new Enemy();
+	EnemyView ev = new EnemyView();
 	TileView terrain = new TileView("green_village");
 	int[] config = {1};
 	MapModel map = new MapModel("src/resources/map.txt", config);
@@ -62,8 +63,8 @@ public class GamePanel extends JPanel implements Runnable {
 		for (BombModel bomb : placedBombs) {
 			bombView.drawBomb(g, bomb.getPos_x(), bomb.getPos_y());
 		}
-//		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
-		g.drawImage(c.getSprite(), e.getPos_x(), e.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
+		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
+		g.drawImage(ev.getSprite(), e.getPos_x()+7, e.getPos_y(), ev.getSpriteWidth()*2, ev.getSpriteHeight()*2, null);
 //		g.drawRect(e.getPos_x(), e.getPos_y(), GamePanel.FINAL_TILE_SIZE, GamePanel.FINAL_TILE_SIZE);
 	}
 
@@ -130,14 +131,18 @@ public class GamePanel extends JPanel implements Runnable {
 //			}
 			e.hitObstacle= !checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
 			e.move();
-			c.setNextUp();
+			if (!e.hitObstacle) {
+				ev.setNextUp();				
+			}
 		}
-		else if (e.dir == 'd' && e.getPos_y()+c.getSpriteHeight()*2+Bomberman.getMoveSpeed() <= 
+		else if (e.dir == 'd' && e.getPos_y()+ev.getSpriteHeight()*2+Bomberman.getMoveSpeed() <= 
 				GamePanel.getPanelHeight()) {
 			System.out.println("updating pos down");
 			e.hitObstacle = !checkCollision(HitBoxBottomLeft_x, HitBoxBottomLeft_y + Bomberman.getMoveSpeed(), HitBoxBottomRight_x, HitBoxBottomRight_y + Bomberman.getMoveSpeed());			
 			e.move();
-			c.setNextDown();
+			if (!e.hitObstacle) {
+				ev.setNextDown();				
+			}
 		}
 		else if (e.dir == 'l' && e.getPos_x()-Bomberman.getMoveSpeed() >= 0) {
 			System.out.println("updating pos left");
@@ -152,9 +157,11 @@ public class GamePanel extends JPanel implements Runnable {
 //			}
 			e.hitObstacle = !checkCollision(HitBoxUpperLeft_x - Bomberman.getMoveSpeed(), HitBoxUpperLeft_y, HitBoxBottomLeft_x - Bomberman.getMoveSpeed(), HitBoxBottomLeft_y);
 			e.move();
-			c.setNextLeft();
+			if (!e.hitObstacle) {
+				ev.setNextLeft();				
+			}
 		}
-		else if (e.dir == 'r' && e.getPos_x()+c.getSpriteWidth()*2+Bomberman.getMoveSpeed() <= 
+		else if (e.dir == 'r' && e.getPos_x()+ev.getSpriteWidth()*2+Bomberman.getMoveSpeed() <= 
 				GamePanel.getPanelWidth())  {
 			System.out.println("updating pos right");
 //			boolean canMove = checkCollision(HitBoxUpperRight_x + Bomberman.getMoveSpeed(), HitBoxUpperRight_y, HitBoxBottomRight_x + Bomberman.getMoveSpeed(), HitBoxBottomRight_y);
@@ -168,7 +175,9 @@ public class GamePanel extends JPanel implements Runnable {
 //			}
 			e.hitObstacle = !checkCollision(HitBoxUpperRight_x + Bomberman.getMoveSpeed(), HitBoxUpperRight_y, HitBoxBottomRight_x + Bomberman.getMoveSpeed(), HitBoxBottomRight_y);
 			e.move();
-			c.setNextRight();
+			if (!e.hitObstacle) {
+				ev.setNextRight();				
+			}
 		}
 		else {
 			System.out.println("changing dir");
