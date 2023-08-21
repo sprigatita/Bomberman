@@ -2,7 +2,7 @@ package Model;
 import java.util.Observable;
 
 @SuppressWarnings("deprecation")
-public class Character extends Observable {
+public class Entity extends Observable {
 	
 	private int pos_x;
 	private int pos_y;

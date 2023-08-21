@@ -1,6 +1,6 @@
 package Model;
 
-public class BombModel extends Character {
+public class BombModel extends Entity {
 
 	private int fuse;
 	

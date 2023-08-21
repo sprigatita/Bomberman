@@ -1,5 +1,6 @@
 package View;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,7 +42,6 @@ public class TileView {
 		int h_tiles_num = GamePanel.X_TILES;
 		int v_tiles_num = GamePanel.Y_TILES;
 		int tile_width = GamePanel.FINAL_TILE_SIZE;
-		
 		for (int j = 0; j < h_tiles_num; j++) {
 			for (int k = 0; k < v_tiles_num; k++) {
 				int tile_num = mapStructure[k][j].getModel_num();

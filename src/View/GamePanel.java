@@ -34,6 +34,7 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	BombermanView c = new BombermanView();
 	Bomberman b = Bomberman.getInstance();
+	Enemy e = new Enemy();
 	TileView terrain = new TileView("green_village");
 	int[] config = {1};
 	MapModel map = new MapModel("src/resources/map.txt", config);
@@ -61,7 +62,9 @@ public class GamePanel extends JPanel implements Runnable {
 		for (BombModel bomb : placedBombs) {
 			bombView.drawBomb(g, bomb.getPos_x(), bomb.getPos_y());
 		}
-		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
+//		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
+		g.drawImage(c.getSprite(), e.getPos_x(), e.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
+//		g.drawRect(e.getPos_x(), e.getPos_y(), GamePanel.FINAL_TILE_SIZE, GamePanel.FINAL_TILE_SIZE);
 	}
 
 	@Override
@@ -69,13 +72,14 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		while(true) {
 			updatePos();
+			updateEnemyPos();
 			placeBomb();
 			repaint();
 			bombTimer -= 3;
 			
 			//Lo sleep lancia un'eccezione non gestita
 			try {
-				Thread.sleep(15);
+				Thread.sleep(30);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -90,10 +94,10 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	private boolean checkCollision(int corner1_x, int corner1_y, int corner2_x, int corner2_y) {
 		
-		int corner1_tile_x = corner1_x/FINAL_TILE_SIZE;
-		int corner1_tile_y = corner1_y/FINAL_TILE_SIZE;
-		int corner2_tile_x = corner2_x/FINAL_TILE_SIZE;
-		int corner2_tile_y = corner2_y/FINAL_TILE_SIZE;
+		int corner1_tile_x = corner1_x/(FINAL_TILE_SIZE);
+		int corner1_tile_y = corner1_y/(FINAL_TILE_SIZE);
+		int corner2_tile_x = corner2_x/(FINAL_TILE_SIZE);
+		int corner2_tile_y = corner2_y/(FINAL_TILE_SIZE);
 		boolean canPass1 = !this.map_structure[corner1_tile_y][corner1_tile_x].getCollision();
 		boolean canPass2 = !this.map_structure[corner2_tile_y][corner2_tile_x].getCollision();
 		if (canPass1 && canPass2) {
@@ -104,6 +108,77 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 	
+	public void updateEnemyPos() {
+		
+		int HitBoxUpperLeft_x = e.getPos_x()+1;
+		int HitBoxUpperLeft_y = e.getPos_y()+1;
+		int HitBoxUpperRight_x = e.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
+		int HitBoxUpperRight_y = e.getPos_y()+1;
+		int HitBoxBottomLeft_x = e.getPos_x()+1;
+		int HitBoxBottomLeft_y = e.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
+		int HitBoxBottomRight_x = e.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
+		int HitBoxBottomRight_y = e.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
+		if (e.dir == 'u' && 	e.getPos_y()-Bomberman.getMoveSpeed() >= 0) {
+			System.out.println("updating pos up");
+//			boolean canMove = checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
+//			if (canMove) {
+//				e.move();
+//				c.setNextUp();				
+//			}
+//			else {
+//				e.changeDir();
+//			}
+			e.hitObstacle= !checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
+			e.move();
+			c.setNextUp();
+		}
+		else if (e.dir == 'd' && e.getPos_y()+c.getSpriteHeight()*2+Bomberman.getMoveSpeed() <= 
+				GamePanel.getPanelHeight()) {
+			System.out.println("updating pos down");
+			e.hitObstacle = !checkCollision(HitBoxBottomLeft_x, HitBoxBottomLeft_y + Bomberman.getMoveSpeed(), HitBoxBottomRight_x, HitBoxBottomRight_y + Bomberman.getMoveSpeed());			
+			e.move();
+			c.setNextDown();
+		}
+		else if (e.dir == 'l' && e.getPos_x()-Bomberman.getMoveSpeed() >= 0) {
+			System.out.println("updating pos left");
+//			boolean canMove = checkCollision(HitBoxUpperLeft_x - Bomberman.getMoveSpeed(), HitBoxUpperLeft_y, HitBoxBottomLeft_x - Bomberman.getMoveSpeed(), HitBoxBottomLeft_y);
+////			boolean canMove = true;
+//			if (canMove) {
+//				e.move();
+//				c.setNextLeft();				
+//			}
+//			else {
+//				e.changeDir();
+//			}
+			e.hitObstacle = !checkCollision(HitBoxUpperLeft_x - Bomberman.getMoveSpeed(), HitBoxUpperLeft_y, HitBoxBottomLeft_x - Bomberman.getMoveSpeed(), HitBoxBottomLeft_y);
+			e.move();
+			c.setNextLeft();
+		}
+		else if (e.dir == 'r' && e.getPos_x()+c.getSpriteWidth()*2+Bomberman.getMoveSpeed() <= 
+				GamePanel.getPanelWidth())  {
+			System.out.println("updating pos right");
+//			boolean canMove = checkCollision(HitBoxUpperRight_x + Bomberman.getMoveSpeed(), HitBoxUpperRight_y, HitBoxBottomRight_x + Bomberman.getMoveSpeed(), HitBoxBottomRight_y);
+////			boolean canMove = true;
+//			if (canMove) {
+//				e.move();
+//				c.setNextRight();			
+//			}
+//			else {
+//				e.changeDir();
+//			}
+			e.hitObstacle = !checkCollision(HitBoxUpperRight_x + Bomberman.getMoveSpeed(), HitBoxUpperRight_y, HitBoxBottomRight_x + Bomberman.getMoveSpeed(), HitBoxBottomRight_y);
+			e.move();
+			c.setNextRight();
+		}
+		else {
+			System.out.println("changing dir");
+			e.changeDir();
+			
+		}
+		
+		
+	}
+	
 	/*
 	 * Funzione per aggiornare le posizioni.
 	 * 
@@ -112,6 +187,7 @@ public class GamePanel extends JPanel implements Runnable {
 	 * che si dovrebbero avere dopo il movimento (si fa una previsione). Se la funzione checkCollision ritorna true (e quindi
 	 * nessuno dei due angoli finisce in un blocco con collisione) allora si può effettuare il movimento.
 	 */
+	
 	public void updatePos() {
 		int border_const = 5;
 		int HitBoxUpperLeft_x = b.getPos_x()+10;
@@ -122,8 +198,17 @@ public class GamePanel extends JPanel implements Runnable {
 		int HitBoxBottomLeft_y = b.getPos_y() + c.getSpriteHeight()*2;
 		int HitBoxBottomRight_x = b.getPos_x() + c.getSpriteWidth()*2-border_const*2;
 		int HitBoxBottomRight_y = b.getPos_y() + c.getSpriteHeight()*2;
+//		int HitBoxUpperLeft_x = b.getPos_x();
+//		int HitBoxUpperLeft_y = b.getPos_y();
+//		int HitBoxUpperRight_x = b.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
+//		int HitBoxUpperRight_y = b.getPos_y();
+//		int HitBoxBottomLeft_x = b.getPos_x();
+//		int HitBoxBottomLeft_y = b.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
+//		int HitBoxBottomRight_x = b.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
+//		int HitBoxBottomRight_y = b.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
 		if (controls.isUp() == true && 	b.getPos_y()-Bomberman.getMoveSpeed() >= 0) {
 			boolean canMove = checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
+//			boolean canMove = checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed()+1, HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
 			if (canMove) {
 				b.up();
 				c.setNextUp();				
