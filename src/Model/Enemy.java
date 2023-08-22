@@ -94,8 +94,10 @@ public class Enemy extends Character {
 		
 		// Se la direzione ottenuta è l'opposto di quella da cui si viene, si fanno
 		// cinque tentativi per ottenere una direzione differente.
-		while (counter <= 5 && oppositeDir(i, this.prev_dir)) {
-			i = r.nextInt(4);
+		while (counter <= 5 && oppositeDir(i, this.prev_dir) ) {
+			while (i == this.prev_dir) {
+				i = r.nextInt(4);
+			}
 			counter++;
 		}
 		this.prev_dir = i;
