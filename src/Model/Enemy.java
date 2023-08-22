@@ -7,11 +7,19 @@ import java.util.Random;
 import View.GamePanel;
 
 public class Enemy extends Character {
+	
 	Random r = new Random();
 	public boolean hitObstacle = false;
 	public char dir = 'u';
 	public int prev_dir;
 	public int curr_dir;
+	
+	/*
+	 * Funzione per muovere un nemico. La prima parte introduce una componente random che potrebbe far effettuare un cambio di direzione ogni qual volta il 
+	 * modello del nemico si trova sovrapposto perfettamente ad un tile (si verifica banalmente controllando l'angolo in alto a sinistra del modello)
+	 * In seguito si controlla se il movimento sia possibile (controllando tramite hitObstacle che il modello non vada incontro ad un tile con collisione), nel quale
+	 * caso si cambia direzione, altrimenti si effettua il movimento vero e proprio verso la direzione dir
+	 */
 	public void move() {
 		if(this.getPos_x()%GamePanel.FINAL_TILE_SIZE == 0 && this.getPos_y()%GamePanel.FINAL_TILE_SIZE == 0) {
 			System.out.println("angle");
@@ -47,7 +55,11 @@ public class Enemy extends Character {
 		
 	}
 	
-	public int dir_number(char dir) {
+	/*
+	 * Funzione utilitaria per associare un valore intero ad ogni direzione
+	 */
+	
+	private int dir_number(char dir) {
 		switch(dir) {
 		case 'u':
 			return 0;
@@ -62,16 +74,26 @@ public class Enemy extends Character {
 		}
 	}
 	
-	public boolean oppositeDir(int dir1, int dir2) {
+	/*
+	 * Funzione utilitaria per calcolare che due direzioni non siano una l'opposto dell'altra. Usata per diminuire la componente casuale e fare
+	 * in modo che il modello non torni troppo spesso dalla direzione da cui è venuto
+	 */
+	private boolean oppositeDir(int dir1, int dir2) {
 		if ((dir1+dir2)%2 == 0) {
 			return true;
 		}
 		else return false;
 	}
 	
+	/*
+	 * Funzione che cambia direzione in modo (quasi) casuale.
+	 */
 	public void changeDir() {
 		int i = r.nextInt(4);
 		int counter = 0;
+		
+		// Se la direzione ottenuta è l'opposto di quella da cui si viene, si fanno
+		// cinque tentativi per ottenere una direzione differente.
 		while (counter <= 5 && oppositeDir(i, this.prev_dir)) {
 			i = r.nextInt(4);
 			counter++;
