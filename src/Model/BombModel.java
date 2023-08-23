@@ -19,7 +19,7 @@ public class BombModel extends Entity {
 
 	}
 	
-	public void explode() {
+	public void explode() { //implementare tramite Observer-Observable
 		
 	}
 	
