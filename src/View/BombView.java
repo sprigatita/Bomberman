@@ -74,11 +74,15 @@ public class BombView {
     	g.drawImage(bombAnimations[0], x, y, bomb_tile_size, bomb_tile_size, null);
     }
 
-	public void explode(Graphics g, int x, int y) {
+	public void drawExplosion(Graphics g, int x, int y) {
 		//paint explosion and repaint terrain tiles in the whole explosion area after the animation, except for the tiles that are unbreakable walls
 		g.drawImage(cExplosionAnimations[0], x, y, bomb_tile_size, bomb_tile_size, null);
 	}
     
+	
+
+	
+
     
     
 }

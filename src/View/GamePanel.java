@@ -9,6 +9,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Queue;
 
 
 public class GamePanel extends JPanel implements Runnable {
@@ -278,6 +280,25 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 		
 	}
+	
+	//Creiamo una coda di bombe. Poi per ogni bomba nella coda facciamo partire la funzione fireFuse che aggiorna
+	//continuamente il timer della miccia :)
+	
+
+    public void updateBombTimer() {
+        // Aggiorna il timer di ogni bomba attiva
+    	int fuse = 5; //placeholder, deve essere quello di ogni singola bomba preso dal bombmodel
+        for (Iterator<BombModel> iterator = placedBombs.iterator(); iterator.hasNext();) {
+            BombModel bomba = iterator.next();
+            bomba.fireFuse(fuse);
+
+            if (bomba.afterExplosion()) { //booleano da aggiungere a bombmodel
+                iterator.remove(); // Rimuove la bomba esplosa
+            }
+        }
+    }
+    
+
 	
 	
 }
