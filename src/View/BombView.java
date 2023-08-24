@@ -13,11 +13,19 @@ import Model.TileModel;
 
 public class BombView {
 	
+	///
+	
+	public BufferedImage[][] explosionMatrix = new BufferedImage[4][2];
+	
+	
+	///
+	
+	
 	int bomb_tile_size = GamePanel.FINAL_TILE_SIZE;
 
 	private BufferedImage spriteToDraw;
 	public BufferedImage bombSprite;
-	public BufferedImage explosionSprite;
+	public BufferedImage centralExplosionSprite;
 	
 	
 	private BufferedImage[] bombAnimations = new BufferedImage[3];
@@ -41,9 +49,18 @@ public class BombView {
     public void createBombAnimationArr() {
     	
 		try {
-			explosionSprite = ImageIO.read(new File("src/resources/explosion/explosion-cross.png"));
+			centralExplosionSprite = ImageIO.read(new File("src/resources/explosion/center_01.png"));
 			bombSprite = ImageIO.read(new File("src/resources/bomb/bomb_01.png"));
 			spriteToDraw = ImageIO.read(new File("src/resources/bomb/bomb_01.png"));
+			
+			explosionMatrix[0][0] = ImageIO.read(new File("src/resources/explosion/vertical_01.png"));
+			explosionMatrix[0][1] = ImageIO.read(new File("src/resources/explosion/up_01.png"));
+			explosionMatrix[1][0] = ImageIO.read(new File("src/resources/explosion/horizontal_01.png"));
+			explosionMatrix[1][1] = ImageIO.read(new File("src/resources/explosion/right_01.png"));
+			explosionMatrix[2][0] = ImageIO.read(new File("src/resources/explosion/vertical_01.png"));
+			explosionMatrix[2][1] = ImageIO.read(new File("src/resources/explosion/down_01.png"));
+			explosionMatrix[3][0] = ImageIO.read(new File("src/resources/explosion/horizontal_01.png"));
+			explosionMatrix[3][1] = ImageIO.read(new File("src/resources/explosion/left_01.png"));
 			
 			bombAnimations[0] = ImageIO.read(new File("src/resources/bomb/bomb_01.png"));
 			bombAnimations[1] = ImageIO.read(new File("src/resources/bomb/bomb_02.png"));

@@ -291,13 +291,53 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public void drawBombs(Graphics g) {
 		for (BombModel b : placedBombs) {
+			
+			int b_tile_col = b.getPos_x()/FINAL_TILE_SIZE;
+			int b_tile_row = b.getPos_y()/FINAL_TILE_SIZE;
+			
 			if (b.hasExploded()) {
-				g.drawImage(bombView.explosionSprite, b.getPos_x()-96, b.getPos_y()-96, 5*FINAL_TILE_SIZE, 5*FINAL_TILE_SIZE, null);
+				//g.drawImage(bombView.explosionSprite, b.getPos_x()-96, b.getPos_y()-96, 5*FINAL_TILE_SIZE, 5*FINAL_TILE_SIZE, null);
+				g.drawImage(bombView.centralExplosionSprite, b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+				for (int j = 0; j < 2; j++) {
+					if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getModel_num() != 1) {
+						break;
+					}
+					else {
+					g.drawImage(bombView.explosionMatrix[0][j], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+					}
+				}
+				for (int j = 0; j < 2; j++) {
+					if (this.map_structure[b_tile_row][b_tile_col+j+1].getModel_num() != 1) {
+						break;
+					}
+					else {
+					g.drawImage(bombView.explosionMatrix[1][j], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+					}
+				}
+				for (int j = 0; j < 2; j++) {
+					if (this.map_structure[b_tile_row+j+1][b_tile_col].getModel_num() != 1) {
+						break;
+					}
+					else {
+					g.drawImage(bombView.explosionMatrix[2][j], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+					}
+				}
+				for (int j = 0; j < 2; j++) {
+					if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getModel_num() != 1) {
+						break;
+					}
+					else {
+					g.drawImage(bombView.explosionMatrix[3][j], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+					}
+				}
 			}
 			else {
 				g.drawImage(bombView.bombSprite, b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
 
 			}
+
+			
+			
 		}
 	}
 	

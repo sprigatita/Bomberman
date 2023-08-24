@@ -10,6 +10,11 @@ import javax.imageio.ImageIO;
 import Model.TileModel;
 
 public class TileView {
+	
+	
+	
+	
+	
 	String mapName;
 	private int num_of_samples = 24;
 	private BufferedImage[] tileSamples = new BufferedImage[num_of_samples];
@@ -35,6 +40,11 @@ public class TileView {
 		} catch (IOException e) {
 			e.printStackTrace(); //Pos nel programmaq in cui è avvenuto l'errore
 		}
+	}
+	
+	
+	public void drawExplosion(Graphics g) {
+		
 	}
 	
 	public void drawTile(Graphics g, TileModel[][] mapStructure) {
