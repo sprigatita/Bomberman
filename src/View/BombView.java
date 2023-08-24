@@ -4,13 +4,22 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.imageio.ImageIO;
+
+import Model.TileModel;
 
 public class BombView {
 	
 	int bomb_tile_size = GamePanel.FINAL_TILE_SIZE;
 
+	private BufferedImage spriteToDraw;
+	public BufferedImage bombSprite;
+	public BufferedImage explosionSprite;
+	
+	
 	private BufferedImage[] bombAnimations = new BufferedImage[3];
 	
 	private BufferedImage[] cExplosionAnimations = new BufferedImage[3];
@@ -32,6 +41,10 @@ public class BombView {
     public void createBombAnimationArr() {
     	
 		try {
+			explosionSprite = ImageIO.read(new File("src/resources/explosion/explosion-cross.png"));
+			bombSprite = ImageIO.read(new File("src/resources/bomb/bomb_01.png"));
+			spriteToDraw = ImageIO.read(new File("src/resources/bomb/bomb_01.png"));
+			
 			bombAnimations[0] = ImageIO.read(new File("src/resources/bomb/bomb_01.png"));
 			bombAnimations[1] = ImageIO.read(new File("src/resources/bomb/bomb_02.png"));
 			bombAnimations[2] = ImageIO.read(new File("src/resources/bomb/bomb_03.png"));
@@ -78,6 +91,10 @@ public class BombView {
 		//paint explosion and repaint terrain tiles in the whole explosion area after the animation, except for the tiles that are unbreakable walls
 		g.drawImage(cExplosionAnimations[0], x, y, bomb_tile_size, bomb_tile_size, null);
 	}
+
+
+
+
     
 	
 

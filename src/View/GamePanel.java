@@ -81,6 +81,8 @@ public class GamePanel extends JPanel implements Runnable {
 		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
 		g.drawImage(ev.getSprite(), e.getPos_x()+7, e.getPos_y(), ev.getSpriteWidth()*2, ev.getSpriteHeight()*2, null);
 //		g.drawRect(e.getPos_x(), e.getPos_y(), GamePanel.FINAL_TILE_SIZE, GamePanel.FINAL_TILE_SIZE);
+		drawBombs(g);
+
 	}
 	
 	
@@ -95,6 +97,7 @@ public class GamePanel extends JPanel implements Runnable {
 		while(true) {
 			updatePos();
 			updateEnemyPos();
+			updateBombTimer();
 			placeBomb();
 			repaint();
 			
@@ -253,6 +256,10 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 	
+	
+	
+	
+	
 	/*
 	 * Funzione che piazza la bomba in seguito alla pressione della spacebar (aggiungendola alla lista di bombe che verranno disegnate nel ciclo di gioco)
 	 */
@@ -281,19 +288,35 @@ public class GamePanel extends JPanel implements Runnable {
 		
 	}
 	
+	
+	public void drawBombs(Graphics g) {
+		for (BombModel b : placedBombs) {
+			if (b.hasExploded()) {
+				g.drawImage(bombView.explosionSprite, b.getPos_x()-96, b.getPos_y()-96, 5*FINAL_TILE_SIZE, 5*FINAL_TILE_SIZE, null);
+			}
+			else {
+				g.drawImage(bombView.bombSprite, b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+
+			}
+		}
+	}
+	
+	
+	
+	
 	//Creiamo una coda di bombe. Poi per ogni bomba nella coda facciamo partire la funzione fireFuse che aggiorna
 	//continuamente il timer della miccia :)
 	
 
     public void updateBombTimer() {
         // Aggiorna il timer di ogni bomba attiva
-    	int fuse = 5; //placeholder, deve essere quello di ogni singola bomba preso dal bombmodel
+    	 //placeholder, deve essere quello di ogni singola bomba preso dal bombmodel
         for (Iterator<BombModel> iterator = placedBombs.iterator(); iterator.hasNext();) {
             BombModel bomba = iterator.next();
-            bomba.fireFuse(fuse);
+            bomba.fireFuse();
 
-            if (bomba.afterExplosion()) { //booleano da aggiungere a bombmodel
-                iterator.remove(); // Rimuove la bomba esplosa
+            if (bomba.hasExpired()) {    
+                iterator.remove(); 
             }
         }
     }
