@@ -4,7 +4,7 @@ import java.util.Observable;
 
 public class BombModel extends Observable {
 
-	private int fuse = 50;
+	private int fuse = 60;
 	private boolean hasExploded;
 	private boolean hasExpired;
 	
@@ -35,10 +35,10 @@ public class BombModel extends Observable {
 	
 	public void fireFuse() {
 		 
-        if (fuse == 0) {
+        if (fuse == 20) {
             explode(); // Facciamo esplodere la bomba quando il timer raggiunge zero
         }
-        if (fuse == -25) {
+        if (fuse == 0) {
         	hasExpired = true;
         }
         fuse--;

@@ -8,9 +8,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Queue;
+import java.util.Map;
+import java.util.HashMap;
 
 
 public class GamePanel extends JPanel implements Runnable {
@@ -45,6 +48,9 @@ public class GamePanel extends JPanel implements Runnable {
 	TileModel[][] map_structure = map.getMapStructure();
 	ControlsHandler controls;
 	
+	//Tile da aggiornare per le collisioni
+	Map<TileModel, Coordinates> tiles_to_update = new HashMap<TileModel, Coordinates>();
+	
 	//getter e setters per le varie dimensioni del pannello di gioco
 	public static int getPanelWidth() {
 		return X_TILES*FINAL_TILE_SIZE;
@@ -78,10 +84,11 @@ public class GamePanel extends JPanel implements Runnable {
 		for (BombModel bomb : placedBombs) {
 			bombView.drawBomb(g, bomb.getPos_x(), bomb.getPos_y());
 		}
-		g.drawImage(c.getSprite(), b.getPos_x(), b.getPos_y(), c.getSpriteWidth()*2, c.getSpriteHeight()*2, null);
-		g.drawImage(ev.getSprite(), e.getPos_x()+7, e.getPos_y(), ev.getSpriteWidth()*2, ev.getSpriteHeight()*2, null);
+		g.drawImage(c.getSprite(), b.getPos_x()+ev.getSpriteWidth()/2, b.getPos_y(), ev.getSpriteWidth()*2, ev.getSpriteHeight()*2, null);
+		g.drawImage(ev.getSprite(), e.getPos_x()+ev.getSpriteWidth()/2, e.getPos_y(), ev.getSpriteWidth()*2, ev.getSpriteHeight()*2, null);
 //		g.drawRect(e.getPos_x(), e.getPos_y(), GamePanel.FINAL_TILE_SIZE, GamePanel.FINAL_TILE_SIZE);
 		drawBombs(g);
+		updateMap(g);
 
 	}
 	
@@ -99,6 +106,7 @@ public class GamePanel extends JPanel implements Runnable {
 			updateEnemyPos();
 			updateBombTimer();
 			placeBomb();
+			explodeBlocks();
 			repaint();
 			
 			//Lo sleep lancia un'eccezione non gestita
@@ -205,23 +213,23 @@ public class GamePanel extends JPanel implements Runnable {
 	 */
 	
 	public void updatePos() {
-		int border_const = 5;
-		int HitBoxUpperLeft_x = b.getPos_x()+10;
-		int HitBoxUpperLeft_y = b.getPos_y() + c.getSpriteHeight();
-		int HitBoxUpperRight_x = b.getPos_x() + c.getSpriteWidth()*2-border_const*2;
-		int HitBoxUpperRight_y = b.getPos_y() + c.getSpriteHeight();
-		int HitBoxBottomLeft_x = b.getPos_x()+border_const*2;
-		int HitBoxBottomLeft_y = b.getPos_y() + c.getSpriteHeight()*2;
-		int HitBoxBottomRight_x = b.getPos_x() + c.getSpriteWidth()*2-border_const*2;
-		int HitBoxBottomRight_y = b.getPos_y() + c.getSpriteHeight()*2;
-//		int HitBoxUpperLeft_x = b.getPos_x();
-//		int HitBoxUpperLeft_y = b.getPos_y();
-//		int HitBoxUpperRight_x = b.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
-//		int HitBoxUpperRight_y = b.getPos_y();
-//		int HitBoxBottomLeft_x = b.getPos_x();
-//		int HitBoxBottomLeft_y = b.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
-//		int HitBoxBottomRight_x = b.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
-//		int HitBoxBottomRight_y = b.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
+//		int border_const = 5;
+//		int HitBoxUpperLeft_x = b.getPos_x()+10;
+//		int HitBoxUpperLeft_y = b.getPos_y() + c.getSpriteHeight();
+//		int HitBoxUpperRight_x = b.getPos_x() + c.getSpriteWidth()*2-border_const*2;
+//		int HitBoxUpperRight_y = b.getPos_y() + c.getSpriteHeight();
+//		int HitBoxBottomLeft_x = b.getPos_x()+border_const*2;
+//		int HitBoxBottomLeft_y = b.getPos_y() + c.getSpriteHeight()*2;
+//		int HitBoxBottomRight_x = b.getPos_x() + c.getSpriteWidth()*2-border_const*2;
+//		int HitBoxBottomRight_y = b.getPos_y() + c.getSpriteHeight()*2;
+		int HitBoxUpperLeft_x = b.getPos_x()+ev.getSpriteWidth()/2;
+		int HitBoxUpperLeft_y = b.getPos_y()+10;
+		int HitBoxUpperRight_x = b.getPos_x() + GamePanel.FINAL_TILE_SIZE-ev.getSpriteWidth()/2-1;
+		int HitBoxUpperRight_y = b.getPos_y()+10;
+		int HitBoxBottomLeft_x = b.getPos_x()+ev.getSpriteWidth()/2;
+		int HitBoxBottomLeft_y = b.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
+		int HitBoxBottomRight_x = b.getPos_x() + GamePanel.FINAL_TILE_SIZE-ev.getSpriteWidth()/2-1;
+		int HitBoxBottomRight_y = b.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
 		if (controls.isUp() == true && 	b.getPos_y()-Bomberman.getMoveSpeed() >= 0) {
 			boolean canMove = !checkCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getMoveSpeed());
 			if (canMove) {
@@ -260,6 +268,24 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	
 	
+	public void explodeBlocks() {
+		for (TileModel tile : tiles_to_update.keySet()) {
+			if (tile.destruction_counter == 0){
+				tile.setModel_num(1);
+				tile.setCollision(false);	
+			}
+			else {
+				tile.destruction_counter--;
+			}
+		}
+	}
+	public void updateMap(Graphics g) {
+		for (TileModel tile : this.tiles_to_update.keySet()) {
+			BufferedImage tile_image = terrain.getTileSamples(tile.getModel_num()-1);
+			g.drawImage(tile_image, this.tiles_to_update.get(tile).i, this.tiles_to_update.get(tile).i, FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+		}
+	}
+	
 	/*
 	 * Funzione che piazza la bomba in seguito alla pressione della spacebar (aggiungendola alla lista di bombe che verranno disegnate nel ciclo di gioco)
 	 */
@@ -294,40 +320,60 @@ public class GamePanel extends JPanel implements Runnable {
 			
 			int b_tile_col = b.getPos_x()/FINAL_TILE_SIZE;
 			int b_tile_row = b.getPos_y()/FINAL_TILE_SIZE;
+			boolean left_going = true;
 			
 			if (b.hasExploded()) {
 				//g.drawImage(bombView.explosionSprite, b.getPos_x()-96, b.getPos_y()-96, 5*FINAL_TILE_SIZE, 5*FINAL_TILE_SIZE, null);
 				g.drawImage(bombView.centralExplosionSprite, b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 				for (int j = 0; j < 2; j++) {
-					if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getModel_num() != 1) {
-						break;
-					}
-					else {
-					g.drawImage(bombView.explosionMatrix[0][j], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
-					}
-				}
-				for (int j = 0; j < 2; j++) {
-					if (this.map_structure[b_tile_row][b_tile_col+j+1].getModel_num() != 1) {
-						break;
-					}
-					else {
-					g.drawImage(bombView.explosionMatrix[1][j], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+					if (b_tile_row-(j+1) >= 0 && b_tile_row-(j+1) < Y_TILES && b_tile_col >= 0 && b_tile_col < X_TILES) {
+						if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getModel_num() != 1) {
+							
+							tiles_to_update.put(this.map_structure[b_tile_row-(j+1)][b_tile_col], new Coordinates(b_tile_row-(j+1), b_tile_col));
+							break;
+						}
+						else {
+							g.drawImage(bombView.explosionMatrix[0][j], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+						}
 					}
 				}
 				for (int j = 0; j < 2; j++) {
-					if (this.map_structure[b_tile_row+j+1][b_tile_col].getModel_num() != 1) {
-						break;
-					}
-					else {
-					g.drawImage(bombView.explosionMatrix[2][j], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+					if (b_tile_row >= 0 && b_tile_row < Y_TILES && b_tile_col+j+1 >= 0 && b_tile_col+j+1 < X_TILES) {
+						if (this.map_structure[b_tile_row][b_tile_col+j+1].getModel_num() != 1) {
+							tiles_to_update.put(this.map_structure[b_tile_row][b_tile_col+j+1], new Coordinates(b_tile_row,b_tile_col+j+1));
+							break;							
+						}
+						else {
+							g.drawImage(bombView.explosionMatrix[1][j], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+						}
 					}
 				}
 				for (int j = 0; j < 2; j++) {
-					if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getModel_num() != 1) {
-						break;
+					if (b_tile_row+j+1 >= 0 && b_tile_row+j+1 < Y_TILES && b_tile_col >= 0 && b_tile_col < X_TILES) {
+						
+						if (this.map_structure[b_tile_row+j+1][b_tile_col].getModel_num() != 1) {
+							tiles_to_update.put(this.map_structure[b_tile_row+j+1][b_tile_col], new Coordinates(b_tile_row+j+1,b_tile_col));
+							break;
+							
+						}
+						else {
+							g.drawImage(bombView.explosionMatrix[2][j], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+						}
+					}
+				}
+				for (int j = 0; j < 2; j++) {
+					if (b_tile_row >= 0 && b_tile_row < Y_TILES && b_tile_col-(j+1) >= 0 && b_tile_col-(j+1) < X_TILES && left_going) {	
+						if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getModel_num() != 1) {
+							
+							tiles_to_update.put(this.map_structure[b_tile_row][b_tile_col-(j+1)], new Coordinates(b_tile_row+j+1,b_tile_col));
+							left_going = false;
+						}
+						else {
+							g.drawImage(bombView.explosionMatrix[3][j], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+						}
 					}
 					else {
-					g.drawImage(bombView.explosionMatrix[3][j], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+						break;
 					}
 				}
 			}
