@@ -56,29 +56,28 @@ public class ControlsHandler implements KeyListener{
 	public void keyPressed(KeyEvent e) {
 		
 		int key_code = e.getKeyCode();
-		System.out.println("pressed" + key_code);
 		
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_W:
-				System.out.println("pressed up");
+
 				up = true;					
 				break;
 			case KeyEvent.VK_S:
-				System.out.println("pressed down");
+
 				down = true;					
 
 				
 				break;
 			case KeyEvent.VK_A:
-				System.out.println("pressed left");
+
 				left = true;
 				break;
 			case KeyEvent.VK_D:
-				System.out.println("pressed right");
+
 				right = true;
 				break;
 			case KeyEvent.VK_SPACE:
-				System.out.println("pressed sbacebar");
+
 				space = true;
 				break;
 			default:
@@ -91,7 +90,7 @@ public class ControlsHandler implements KeyListener{
 	@Override
 	public void keyReleased(KeyEvent e) {
 		int key_code = e.getKeyCode();
-		System.out.println("pressed" + key_code);
+
 		
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_W:

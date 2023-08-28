@@ -6,7 +6,9 @@ public class TileModel {
 
 	private int model_num;
 	private boolean collision = true;
+	private boolean is_destructible = true;
 	public int destruction_counter = 20;
+	public boolean containsBomb = false;
 	public boolean getCollision() {
 		return collision;
 	}
@@ -16,7 +18,13 @@ public class TileModel {
 		this.collision = setCollision;
 	}
 	
+	public void setDestructible(boolean setDestructible) {
+		this.is_destructible = setDestructible;
+	}
 	
+	public boolean getDestructible() {
+		return this.is_destructible;
+	}
 	
 	
 	public int getModel_num() {

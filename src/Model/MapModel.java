@@ -10,11 +10,13 @@ public class MapModel {
 	private TileModel[][] mapStructure;
 	
 	//File di configurazione per indicare, insieme alla mappa, quali blocchi devono avere la collision attiva.
-	private int[] config;
+	private int[] collision_config;
+	private int[] destructible_config;
 	
-	public MapModel(String path, int[] config) {
+	public MapModel(String path, int[] collision_config, int[] destructible_config) {
 		
-		this.config = config;
+		this.collision_config = collision_config;
+		this.destructible_config = destructible_config;
 		Stream<String> mapText;
 		
 		
@@ -41,12 +43,21 @@ public class MapModel {
 	public void configureCollision() {
 		for (int i = 0; i < mapStructure.length; i++) {
 			for (int j = 0; j < mapStructure[0].length; j++) {
-				for (int c : config) {
+				
+				for (int c : collision_config) {
 					if (mapStructure[i][j].getModel_num() == c) {
 						mapStructure[i][j].setCollision(false);
 						break;
 					}
 				}
+				
+				for (int d : destructible_config) {
+					if (mapStructure[i][j].getModel_num() == d) {
+						mapStructure[i][j].setDestructible(false);
+						break;
+					}
+				}
+				
 			}
 		}
 	}

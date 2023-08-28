@@ -22,16 +22,14 @@ public class Enemy extends Character {
 	 */
 	public void move() {
 		if(this.getPos_x()%GamePanel.FINAL_TILE_SIZE == 0 && this.getPos_y()%GamePanel.FINAL_TILE_SIZE == 0) {
-			System.out.println("angle");
 			int i = r.nextInt(5);
-			System.out.println(i);
+
 			if (i == 0) {
 				changeDir();
 				return;
 			}
 		}
 		if (hitObstacle == true) {
-			System.out.println("Obstacle");
 			changeDir();
 		}
 		else {
