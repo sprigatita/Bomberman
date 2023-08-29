@@ -111,6 +111,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public void run() {
 		
 		while(true) {
+			AudioManager.getInstance().play("resources/greenvillage.wav");
 			updatePos();
 			updateEnemyPos();
 			updateBombTimer();
