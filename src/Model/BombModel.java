@@ -7,6 +7,7 @@ public class BombModel extends Observable {
 	private int fuse = 60;
 	private boolean hasExploded;
 	private boolean hasExpired;
+	public boolean soundPlayed = false;
 	
 	private int pos_x;
 	private int pos_y;

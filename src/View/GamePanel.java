@@ -3,19 +3,25 @@ package View;
 import Controller.*;
 import Model.*;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
-
+import javax.sound.sampled.AudioInputStream;
 
 public class GamePanel extends JPanel implements Runnable {
 	
@@ -26,6 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public static final int SCALING_CONST = 3;
 	public static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
 	
+	AudioManager audio_samples = new AudioManager();
 	//Tutti i dati relativi alle bombe: lista di tutte le bombe attive in un dato momento, le view associate ai modelli
 	//e un timer utilizzato per prevenire il piazzamento sequenziale troppo velocemente di diverse bombe
 	
@@ -79,6 +86,8 @@ public class GamePanel extends JPanel implements Runnable {
 		controls = new ControlsHandler(c);
 		this.addKeyListener(controls);
 		this.setFocusable(true);
+		audio_samples.clips.get(0).start();
+		audio_samples.setVolume(audio_samples.clips.get(0), 0.1f);
 		Thread t = new Thread(this);
 		t.start();
 	}
@@ -111,7 +120,6 @@ public class GamePanel extends JPanel implements Runnable {
 	public void run() {
 		
 		while(true) {
-			AudioManager.getInstance().play("resources/greenvillage.wav");
 			updatePos();
 			updateEnemyPos();
 			updateBombTimer();
@@ -389,7 +397,11 @@ public class GamePanel extends JPanel implements Runnable {
 				//ogni volta che viene piazzata una bomba, essa viene inserita in placedBombs e gli viene associato il set di tutti i tiles che saranno affetti
 				//dalla sua fiamma. Inizialmente questo set è vuoto e viene costruito in modo adeguato da drawBombs, ma è sbagliato farlo in quella funzione
 				//perché fa già troppe cose. Si può costruire una funzione utilitaria che calcola i tile dove saranno le fiamme e chiamarla direttamente qui dentro
-				placedBombs.put(placedBomb, new HashSet<TileModel>());				
+				placedBombs.put(placedBomb, new HashSet<TileModel>());	
+//				Thread t = new Thread(new SoundPlayer(this.audio_samples.files, 1));
+//				t.start();
+				this.audio_samples.play(1);
+//				this.audio_samples.play(2);
 				map_structure[bomb_tile_row][bomb_tile_col].containsBomb = true;
 				//Si riavvia il timer dopo il piazzamento
 				bombTimer = 100;
@@ -419,6 +431,10 @@ public class GamePanel extends JPanel implements Runnable {
 			//Disegna l'esplosione di ogni bomba, disegnando prima tutta la parte superiore, poi a destra, giù e infine a sinistra. Il disegno dell'esplosione
 			//si interrompe non appena si incontra un tile con collision attiva.
 			if (b.hasExploded()) {
+				if (b.soundPlayed == false) {
+					this.audio_samples.play(2);
+					b.soundPlayed = true;
+				}
 				this.map_structure[b_tile_row][b_tile_col].containsBomb = false;
 				//g.drawImage(bombView.explosionSprite, b.getPos_x()-96, b.getPos_y()-96, 5*FINAL_TILE_SIZE, 5*FINAL_TILE_SIZE, null);
 				//disegna l'esplosione centrale nel tile della bomba
@@ -525,10 +541,10 @@ public class GamePanel extends JPanel implements Runnable {
             boolean bombDamage1 = bombDamage(this.b);
             boolean bombDamage2 = bombDamage(this.e);
             if (bombDamage1) {
-            	System.out.println("bomb damage");
+            	//System.out.println("bomb damage");
             }
             if (bombDamage2) {
-            	System.out.println("enemy killed");
+            	//System.out.println("enemy killed");
             }
 
             if (bomba.hasExpired()) {    
