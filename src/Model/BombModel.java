@@ -4,10 +4,12 @@ import java.util.Observable;
 
 public class BombModel extends Observable {
 
-	private int fuse = 60;
+	private int fuse = 66;
 	private boolean hasExploded;
 	private boolean hasExpired;
 	public boolean soundPlayed = false;
+	public int animationCounter = 0;
+
 	
 	private int pos_x;
 	private int pos_y;
@@ -34,16 +36,23 @@ public class BombModel extends Observable {
 		setPos_y(y);
 	}
 	
+	public void updateAnimationCounter() {
+		if (animationCounter == 12) {
+			animationCounter = 0;
+		}
+		else animationCounter++;
+	}
+	
 	public void fireFuse() {
 		 
-        if (fuse == 20) {
+        if (fuse == 30) {
             explode(); // Facciamo esplodere la bomba quando il timer raggiunge zero
         }
         if (fuse == 0) {
         	hasExpired = true;
         }
         fuse--;
-        
+        updateAnimationCounter();
 	}
 	
 

@@ -57,7 +57,7 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	//i seguenti due array andranno ricavati da un file txt di configurazione, sono momentaneamente impostati a mano per testare
 	int[] collision_config = {1};
-	int[] destructible_config = {14,12,8,9,2,6,7,3,15,23,10,16,18};
+	int[] destructible_config = {14,12,8,9, 10, 11, 2,6,7,3,15, 17,16,18,13, 19, 22, 23};
 	MapModel map = new MapModel("src/resources/map.txt", collision_config, destructible_config);
 	TileModel[][] map_structure = map.getMapStructure();
 	ControlsHandler controls;
@@ -512,7 +512,8 @@ public class GamePanel extends JPanel implements Runnable {
 				}
 			}
 			else {
-				g.drawImage(bombView.bombSprite, b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+				BufferedImage bombSprite = bombView.bombAnimations[(b.animationCounter/2)%3];
+				g.drawImage(bombSprite, b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
 
 			}
 

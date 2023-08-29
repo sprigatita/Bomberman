@@ -13,12 +13,8 @@ import Model.TileModel;
 
 public class BombView {
 	
-	///
 	
 	public BufferedImage[][] explosionMatrix = new BufferedImage[4][2];
-	
-	
-	///
 	
 	
 	int bomb_tile_size = GamePanel.FINAL_TILE_SIZE;
@@ -28,17 +24,17 @@ public class BombView {
 	public BufferedImage centralExplosionSprite;
 	
 	
-	private BufferedImage[] bombAnimations = new BufferedImage[3];
+	public BufferedImage[] bombAnimations = new BufferedImage[3];
 	
-	private BufferedImage[] cExplosionAnimations = new BufferedImage[3];
+	public BufferedImage[] cExplosionAnimations = new BufferedImage[3];
     
-    private BufferedImage[] verticalExplosionAnimations1 = new BufferedImage[3];
-    private BufferedImage[] horizontalExplosionAnimations1 = new BufferedImage[3];
+    public BufferedImage[] verticalExplosionAnimations1 = new BufferedImage[3];
+    public BufferedImage[] horizontalExplosionAnimations1 = new BufferedImage[3];
 
-    private BufferedImage[] uExplosionAnimations2 = new BufferedImage[3];
-    private BufferedImage[] dExplosionAnimations2 = new BufferedImage[3];
-    private BufferedImage[] lExplosionAnimations2 = new BufferedImage[3];
-    private BufferedImage[] rExplosionAnimations2 = new BufferedImage[3];
+    public BufferedImage[] uExplosionAnimations2 = new BufferedImage[3];
+    public BufferedImage[] dExplosionAnimations2 = new BufferedImage[3];
+    public BufferedImage[] lExplosionAnimations2 = new BufferedImage[3];
+    public BufferedImage[] rExplosionAnimations2 = new BufferedImage[3];
     
     
     public BombView() {
@@ -95,28 +91,9 @@ public class BombView {
 //			rExplosionAnimations2[2] = ImageIO.read(new File("src/resources/explosion/bomb_03.png"));
 			
 		} catch (IOException e) {
-			e.printStackTrace(); //Pos nel prograqmma in cui è avvenuto l'errore
+			e.printStackTrace(); //Pos nel programma in cui è avvenuto l'errore
 		}
     			
     }
-    
-    public void drawBomb(Graphics g, int x, int y) {
-    	g.drawImage(bombAnimations[0], x, y, bomb_tile_size, bomb_tile_size, null);
-    }
-
-	public void drawExplosion(Graphics g, int x, int y) {
-		//paint explosion and repaint terrain tiles in the whole explosion area after the animation, except for the tiles that are unbreakable walls
-		g.drawImage(cExplosionAnimations[0], x, y, bomb_tile_size, bomb_tile_size, null);
-	}
-
-
-
-
-    
-	
-
-	
-
-    
     
 }
