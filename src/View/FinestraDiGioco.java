@@ -47,8 +47,8 @@ public class FinestraDiGioco extends JFrame {
          * noi le dovremo prendere dalla classe user quindi magari serve istanziare questo 
          * panel altrove.
          */
-        JLabel usernameLabel = new JLabel("Username: ");
-        JLabel scoreLabel = new JLabel("Score: ");
+        JLabel usernameLabel = new JLabel("Username: I love");
+        JLabel scoreLabel = new JLabel("Score: you");
 
         infoPanel.add(usernameLabel);
         infoPanel.add(scoreLabel);
