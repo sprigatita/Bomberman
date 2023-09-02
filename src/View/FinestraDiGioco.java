@@ -11,7 +11,7 @@ import java.io.IOException;
 
 
 
-public class FinestraDiGioco extends JFrame implements GamePanel.ScoreUpdateListener{
+public class FinestraDiGioco extends JFrame{
     public FinestraDiGioco() {
         this.init();
     }
@@ -28,8 +28,7 @@ public class FinestraDiGioco extends JFrame implements GamePanel.ScoreUpdateList
 
         // Crea il GamePanel e imposta il listener con l'istanza corrente di finestradigioco
         GamePanel gamePanel = new GamePanel();
-        gamePanel.setScoreUpdateListener(this);
-
+        gamePanel.fdg = this;
         // Aggiungi il pannello delle informazioni sopra al GamePanel
         this.add(infoPanel);
         this.add(gamePanel);
@@ -61,13 +60,6 @@ public class FinestraDiGioco extends JFrame implements GamePanel.ScoreUpdateList
         return infoPanel;
     }
     
-    @Override
-    public void onScoreUpdated(int newScore) {
-        scoreLabel.setText("Score: " + newScore);
-
-
-    }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             FinestraDiGioco finestra = new FinestraDiGioco();

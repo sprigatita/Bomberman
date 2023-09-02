@@ -3,7 +3,8 @@ package Model;
 import java.util.Observable;
 
 public class BombModel extends Observable {
-
+	
+	public boolean scoreUpdated = false;
 	private int fuse = 66;
 	private boolean hasExploded;
 	private boolean hasExpired;

@@ -32,6 +32,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public static final int SCALING_CONST = 3;
 	public static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
 	
+	public FinestraDiGioco fdg;
 	AudioManager audio_samples = new AudioManager();
 	//Tutti i dati relativi alle bombe: lista di tutte le bombe attive in un dato momento, le view associate ai modelli
 	//e un timer utilizzato per prevenire il piazzamento sequenziale troppo velocemente di diverse bombe
@@ -432,7 +433,11 @@ public class GamePanel extends JPanel implements Runnable {
 			//Disegna l'esplosione di ogni bomba, disegnando prima tutta la parte superiore, poi a destra, giù e infine a sinistra. Il disegno dell'esplosione
 			//si interrompe non appena si incontra un tile con collision attiva.
 			if (b.hasExploded()) {
-				currentUser.setScore(currentUser.getScore()+500);
+				if (b.scoreUpdated == false) {
+					this.updateScore(500);
+					b.scoreUpdated = true;
+					System.out.print("test");
+				}
 				if (b.soundPlayed == false) {
 					this.audio_samples.play(2);
 					b.soundPlayed = true;
@@ -548,33 +553,22 @@ public class GamePanel extends JPanel implements Runnable {
             }
             if (bombDamage2) {
             	//System.out.println("enemy killed");
-            	updateScore(500);
             }
 
             if (bomba.hasExpired()) {    
                 iterator.remove(); 
-            	updateScore(500);
 
             }
         }
     }
     
-    public interface ScoreUpdateListener {
-        void onScoreUpdated(int newScore);
-    }
 
-    private ScoreUpdateListener scoreUpdateListener;
 
-    public void setScoreUpdateListener(ScoreUpdateListener listener) {
-        this.scoreUpdateListener = listener;
-    }
-    
+   
     public void updateScore(int newScore) {
         currentUser.setScore(currentUser.getScore()+newScore);
+        fdg.scoreLabel.setText("Score: " + currentUser.getScore());
 
-        if (scoreUpdateListener != null) {
-            scoreUpdateListener.onScoreUpdated(currentUser.getScore()+newScore);
-        }
     }
 	
 	
