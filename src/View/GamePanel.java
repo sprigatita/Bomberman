@@ -445,7 +445,7 @@ public class GamePanel extends JPanel implements Runnable {
 				this.map_structure[b_tile_row][b_tile_col].containsBomb = false;
 				//g.drawImage(bombView.explosionSprite, b.getPos_x()-96, b.getPos_y()-96, 5*FINAL_TILE_SIZE, 5*FINAL_TILE_SIZE, null);
 				//disegna l'esplosione centrale nel tile della bomba
-				g.drawImage(bombView.centralExplosionSprite, b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+				g.drawImage(bombView.cExplosionAnimations[(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 				
 				//disegna tutta la parte superiore dell'esplosione, partendo dal centro e salendo
 				for (int j = 0; j < 2; j++) {
@@ -465,7 +465,7 @@ public class GamePanel extends JPanel implements Runnable {
 							//nota: questa cosa va fatta in un'altra funzione!
 							placedBombs.get(b).add(this.map_structure[b_tile_row-(j+1)][b_tile_col]);
 							//disegna la fiamma in quel tile prima di procedere al prossimo ed espanderla ulteriormente
-							g.drawImage(bombView.explosionMatrix[0][j], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							g.drawImage(bombView.explosionMatrix[0][j][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
 					}
 				}
@@ -480,7 +480,7 @@ public class GamePanel extends JPanel implements Runnable {
 						}
 						else {
 							placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col+j+1]);
-							g.drawImage(bombView.explosionMatrix[1][j], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							g.drawImage(bombView.explosionMatrix[1][j][(b.explosionAnimationCounter/5)%3], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
 					}
 				}
@@ -497,7 +497,7 @@ public class GamePanel extends JPanel implements Runnable {
 						}
 						else {
 							placedBombs.get(b).add(this.map_structure[b_tile_row+j+1][b_tile_col]);
-							g.drawImage(bombView.explosionMatrix[2][j], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							g.drawImage(bombView.explosionMatrix[2][j][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
 					}
 				}
@@ -512,7 +512,7 @@ public class GamePanel extends JPanel implements Runnable {
 						}
 						else {
 							placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col-(j+1)]);
-							g.drawImage(bombView.explosionMatrix[3][j], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							g.drawImage(bombView.explosionMatrix[3][j][(b.explosionAnimationCounter/5)%3], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
 					}
 
@@ -525,7 +525,7 @@ public class GamePanel extends JPanel implements Runnable {
 			}
 
 			
-			
+			b.explosionAnimationCounter++;
 		}
 	}
 	

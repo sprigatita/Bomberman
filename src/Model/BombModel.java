@@ -11,6 +11,7 @@ public class BombModel extends Observable {
 	public boolean soundPlayed = false;
 	public int animationCounter = 0;
 
+	public int explosionAnimationCounter = 0;
 	
 	private int pos_x;
 	private int pos_y;
@@ -68,4 +69,5 @@ public class BombModel extends Observable {
 	public boolean hasExpired() {
 		return hasExpired;
 	}
+	
 }
