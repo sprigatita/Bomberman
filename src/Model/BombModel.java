@@ -4,13 +4,18 @@ import java.util.Observable;
 
 public class BombModel extends Observable {
 	
+	public boolean processed_explosion = false;
+	public int up_explosion_limit = 2;
+	public int right_explosion_limit = 2;
+	public int down_explosion_limit = 2;
+	public int left_explosion_limit = 2;
 	public boolean scoreUpdated = false;
 	private int fuse = 66;
 	private boolean hasExploded;
 	private boolean hasExpired;
 	public boolean soundPlayed = false;
 	public int animationCounter = 0;
-
+	
 	public int explosionAnimationCounter = 0;
 	
 	private int pos_x;

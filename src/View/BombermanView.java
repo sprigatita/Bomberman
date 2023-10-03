@@ -7,41 +7,29 @@ import java.util.Observable;
 import java.util.Observer;
 import javax.imageio.ImageIO;
 
-@SuppressWarnings("deprecation")
-public class BombermanView implements Observer {
-    private BufferedImage sprite;
-    private BufferedImage[] leftAnimations = new BufferedImage[3];
-    private BufferedImage[] rightAnimations = new BufferedImage[3];
-    private BufferedImage[] upAnimations = new BufferedImage[3];
-    private BufferedImage[] downAnimations = new BufferedImage[3];
-    
-    private int upCount = 0;
-    private int downCount = 0;
-    private int leftCount = 0;
-    private int rightCount = 0;
-    
-	final int SCALING_CONST = 3;
-	final int ANIMATION_SPEED = 6;
-	
-	
+public class BombermanView extends CharacterView {
+
 	public BombermanView() {
 		createAnimationArr();
 		sprite = downAnimations[1];
 	}
 	
-	
+	@Override
 	public BufferedImage getSprite() {
 		return sprite;
 	}
 	
+	@Override
     public int getSpriteHeight() {
         return sprite.getHeight();
     }
     
+	@Override
     public int getSpriteWidth() {
     	return sprite.getWidth();
     }
     
+	@Override
     public void setNextRight() {
     	this.sprite = rightAnimations[rightCount/ANIMATION_SPEED];
     	rightCount++;
@@ -49,6 +37,8 @@ public class BombermanView implements Observer {
     		rightCount = 0;
     	}
     }
+	
+	@Override
     public void setNextLeft() {
     	this.sprite = leftAnimations[leftCount/ANIMATION_SPEED];
     	leftCount++;
@@ -56,6 +46,8 @@ public class BombermanView implements Observer {
     		leftCount = 0;
     	}
     }
+	
+	@Override
     public void setNextUp() {
     	this.sprite = upAnimations[upCount/ANIMATION_SPEED];
     	upCount++;
@@ -63,6 +55,8 @@ public class BombermanView implements Observer {
     		upCount = 0;
     	}
     }
+	
+	@Override
     public void setNextDown() {
     	this.sprite = downAnimations[downCount/ANIMATION_SPEED];
     	downCount++;
@@ -71,6 +65,7 @@ public class BombermanView implements Observer {
     	}
     }
     
+	@Override
     public void createAnimationArr() {
     	
 		try {
@@ -97,9 +92,4 @@ public class BombermanView implements Observer {
     
 
     
-	
-	@Override
-	public void update(Observable o, Object arg) {
-		
-	}
 }

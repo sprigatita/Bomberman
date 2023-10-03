@@ -25,6 +25,7 @@ public class MapModel {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			mapText = br.lines();
 			this.mapStructure = mapText.map(MapModel::tileMapping).toArray(TileModel[][]::new);
+			this.setTilesCoord();
 			//fa un ulteriore passaggio sulla mapStructure per settare i blocchi con la collision in base al config
 			configureCollision();
 			
@@ -60,6 +61,16 @@ public class MapModel {
 				
 			}
 		}
+	}
+	
+	public void setTilesCoord() {
+		for (int row = 0; row < this.mapStructure.length; row++) {
+			for (int col = 0; col < this.mapStructure[0].length; col ++) {
+				this.mapStructure[row][col].setRowCoord(row);
+				this.mapStructure[row][col].setColCoord(col);
+			}
+		}
+		
 	}
 	
 	public static TileModel[] tileMapping(String s) {

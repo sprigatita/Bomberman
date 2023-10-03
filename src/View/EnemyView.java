@@ -7,21 +7,7 @@ package View;
 	import java.util.Observer;
 	import javax.imageio.ImageIO;
 
-	@SuppressWarnings("deprecation")
-	public class EnemyView implements Observer {
-	    private BufferedImage sprite;
-	    private BufferedImage[] leftAnimations = new BufferedImage[3];
-	    private BufferedImage[] rightAnimations = new BufferedImage[3];
-	    private BufferedImage[] upAnimations = new BufferedImage[3];
-	    private BufferedImage[] downAnimations = new BufferedImage[3];
-	    
-	    private int upCount = 0;
-	    private int downCount = 0;
-	    private int leftCount = 0;
-	    private int rightCount = 0;
-	    
-		final int SCALING_CONST = 3;
-		final int ANIMATION_SPEED = 6;
+	public class EnemyView extends CharacterView {
 		
 		public EnemyView() {
 			createAnimationArr();
@@ -96,9 +82,6 @@ package View;
 	    }
 	    
 		
-		@Override
-		public void update(Observable o, Object arg) {
-			
-		}
+
 	
 }

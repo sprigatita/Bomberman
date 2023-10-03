@@ -20,8 +20,7 @@ public class ControlsHandler implements KeyListener{
 	private boolean right;
 	private boolean space;
 	
-	public ControlsHandler(BombermanView v) {
-		this.s = v;
+	public ControlsHandler() {
 	}
 	
 	public boolean isUp() {

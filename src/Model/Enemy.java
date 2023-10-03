@@ -119,7 +119,7 @@ public class Enemy extends Character {
 	}
 	
 	public Enemy() {
-		// TODO Auto-generated constructor stub
+		super.health = 1;
 	}
 
 }

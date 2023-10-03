@@ -4,6 +4,10 @@ public class TileModel {
 	
 
 
+	private boolean exploding = false;
+
+	private int matrix_pos_row;
+	private int matrix_pos_col;
 	private int model_num;
 	private boolean collision = true;
 	private boolean is_destructible = true;
@@ -14,8 +18,26 @@ public class TileModel {
 	}
 	
 	
+	public boolean isExploding() {
+		return exploding;
+	}
+	
+	
+	public void setExploding(boolean exploding) {
+		this.exploding = exploding;
+	}
+	
 	public void setCollision(boolean setCollision) {
 		this.collision = setCollision;
+	}
+	
+	public int getMatrix_pos_row() {
+		return matrix_pos_row;
+	}
+	
+	
+	public int getMatrix_pos_col() {
+		return matrix_pos_col;
 	}
 	
 	public void setDestructible(boolean setDestructible) {
@@ -38,6 +60,19 @@ public class TileModel {
 	public TileModel(int i) {
 		this.model_num = i;
 	}
+	
+
+
+	public void setColCoord(int col) {
+		this.matrix_pos_col = col;
+	}
+
+
+	public void setRowCoord(int row) {
+		this.matrix_pos_row = row;
+		
+	}
+	
 	
 	
 	

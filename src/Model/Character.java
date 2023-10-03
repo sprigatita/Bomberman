@@ -2,6 +2,9 @@ package Model;
 
 public class Character extends Entity{
 	
+	
+	protected int health;
+	
 	protected final static int MOVE_SPEED = 4;
 	public Character() {
 		setPos_x(96);
@@ -26,6 +29,9 @@ public class Character extends Entity{
 
 	}
 	
+	public void damage() {
+		
+	}
 	
 	
 }
