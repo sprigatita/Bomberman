@@ -1,5 +1,5 @@
 package Model;
-
+import java.util.HashSet;
 import java.util.Observable;
 
 public class BombModel extends Observable {
@@ -15,7 +15,7 @@ public class BombModel extends Observable {
 	private boolean hasExpired;
 	public boolean soundPlayed = false;
 	public int animationCounter = 0;
-	
+	private HashSet<Character> damagedCharacter = new HashSet<Character>();
 	public int explosionAnimationCounter = 0;
 	
 	private int pos_x;
@@ -24,6 +24,15 @@ public class BombModel extends Observable {
 	public int getPos_x() {
 		return pos_x;
 	}
+	
+	public void damaged(Character c) {
+		this.damagedCharacter.add(c);
+	}
+	
+	public boolean hasDamaged(Character c) {
+		return this.damagedCharacter.contains(c);
+	}
+	
 	
 	public void setPos_x(int pos_x) {
 		this.pos_x = pos_x;

@@ -84,6 +84,15 @@ public class BombermanView extends CharacterView {
 			downAnimations[0] = ImageIO.read(new File("src/resources/down_01.png"));
 			downAnimations[1] = ImageIO.read(new File("src/resources/down_02.png"));
 			downAnimations[2] = ImageIO.read(new File("src/resources/down_03.png"));
+			
+			deathAnimations[0] = ImageIO.read(new File("src/resources/bomberman_death/1.png"));
+			deathAnimations[1] = ImageIO.read(new File("src/resources/bomberman_death/2.png"));
+			deathAnimations[2] = ImageIO.read(new File("src/resources/bomberman_death/3.png"));
+			deathAnimations[3] = ImageIO.read(new File("src/resources/bomberman_death/4.png"));
+			deathAnimations[4] = ImageIO.read(new File("src/resources/bomberman_death/5.png"));
+			deathAnimations[5] = ImageIO.read(new File("src/resources/bomberman_death/6.png"));
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace(); //Pos nel prograqmma in cui è avvenuto l'errore
 		}

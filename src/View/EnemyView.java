@@ -37,6 +37,12 @@ package View;
 				downAnimations[0] = ImageIO.read(new File("src/resources/enemy/down_01.png"));
 				downAnimations[1] = ImageIO.read(new File("src/resources/enemy/down_02.png"));
 				downAnimations[2] = ImageIO.read(new File("src/resources/enemy/down_03.png"));
+				deathAnimations[0] = ImageIO.read(new File("src/resources/enemy/enemy_death/1.png"));
+				deathAnimations[1] = ImageIO.read(new File("src/resources/enemy/enemy_death/2.png"));
+				deathAnimations[2] = ImageIO.read(new File("src/resources/enemy/enemy_death/3.png"));
+				deathAnimations[3] = ImageIO.read(new File("src/resources/enemy/enemy_death/4.png"));
+				deathAnimations[4] = ImageIO.read(new File("src/resources/enemy/enemy_death/5.png"));
+				deathAnimations[5] = ImageIO.read(new File("src/resources/enemy/enemy_death/6.png"));
 			} catch (IOException e) {
 				e.printStackTrace(); //Pos nel prograqmma in cui è avvenuto l'errore
 			}

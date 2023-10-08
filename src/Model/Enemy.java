@@ -20,6 +20,16 @@ public class Enemy extends Character {
 	 * In seguito si controlla se il movimento sia possibile (controllando tramite hitObstacle che il modello non vada incontro ad un tile con collisione), nel quale
 	 * caso si cambia direzione, altrimenti si effettua il movimento vero e proprio verso la direzione dir
 	 */
+	
+	public Enemy(int health) {
+		this.health = health;
+	}
+	
+	public Enemy() {
+		this.health = 1;
+	}
+
+	
 	public void move() {
 		if(this.getPos_x()%GamePanel.FINAL_TILE_SIZE == 0 && this.getPos_y()%GamePanel.FINAL_TILE_SIZE == 0) {
 			int i = r.nextInt(5);
@@ -118,8 +128,5 @@ public class Enemy extends Character {
 		
 	}
 	
-	public Enemy() {
-		super.health = 1;
-	}
 
 }

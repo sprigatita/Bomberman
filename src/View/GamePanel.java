@@ -37,7 +37,8 @@ public class GamePanel extends JPanel implements Runnable {
 	public FinestraDiGioco fdg;
 	AudioManager audio_samples = new AudioManager();
 	ArrayList<Character> damageableCharacters = new ArrayList<Character>();
-	HashMap<Character, CharacterView> modelsView = new HashMap<Character, CharacterView>();
+	HashMap<Character, CharacterView> characterModelsView = new HashMap<Character, CharacterView>();
+	PowerUpView powerUpIcons = new PowerUpView();
 	//Tutti i dati relativi alle bombe: lista di tutte le bombe attive in un dato momento, le view associate ai modelli
 	//e un timer utilizzato per prevenire il piazzamento sequenziale troppo velocemente di diverse bombe
 	
@@ -47,7 +48,7 @@ public class GamePanel extends JPanel implements Runnable {
 	BombView bombView = new BombView();
 	private int bombTimer = 0;
 
-
+	ArrayList<PowerUpModel> powerUpList = new ArrayList<PowerUpModel>();
 	
 	//Dati relativi al giocatore, ai nemici, modelli, view associate e ----da aggiungere--- lista di tutti i nemici sulla mappa
 	User currentUser = new User();
@@ -88,8 +89,8 @@ public class GamePanel extends JPanel implements Runnable {
 		EnemyView ev = new EnemyView();
 		this.damageableCharacters.add(b);
 		this.damageableCharacters.add(e);
-		this.modelsView.put(b, c);
-		this.modelsView.put(e, ev);
+		this.characterModelsView.put(b, c);
+		this.characterModelsView.put(e, ev);
 	}
 	
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
@@ -116,11 +117,19 @@ public class GamePanel extends JPanel implements Runnable {
 		terrain.drawTile(g, map_structure);
 		
 		drawBombs(g);
-		for (Character c : this.modelsView.keySet()) {
-			g.drawImage(this.modelsView.get(c).getSprite(), c.getPos_x()+this.modelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.modelsView.get(c).getSpriteWidth()*2, this.modelsView.get(c).getSpriteHeight()*2, null);
+		for (Character c : this.characterModelsView.keySet()) {
+			if (c.isDead()) {
+				System.out.println(c.getDeath_animation_counter());
+				g.drawImage(this.characterModelsView.get(c).getDeadSprite(c.getDeath_animation_counter()), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);
+
+			}
+			else {
+				g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);				
+			}
 		}
 		
-		updateMap(g);
+//		updateMap(g);
+		drawPowerUps(g);
 
 	}
 	
@@ -134,17 +143,22 @@ public class GamePanel extends JPanel implements Runnable {
 	public void run() {
 		
 		while(true) {
-			for (Character c : this.modelsView.keySet()) {
-				if (c instanceof Enemy) {
-					Enemy e = (Enemy)c;
-					updateEnemyPos(e);
+			for (Character c : this.characterModelsView.keySet()) {
+				if (!c.isDead()) {
+					if (c instanceof Enemy) {
+						Enemy e = (Enemy)c;
+						updateEnemyPos(e);
+					}
+					if (c instanceof Bomberman) {
+						updatePos();
+					}
 				}
 			}
-			updatePos();
+			checkPowerUp();
 			updateBombTimer();
 			placeBomb();
 			explodeBlocks();
-			bombDamage();
+			manageDeadCharacters();
 			repaint();
 			
 			//Lo sleep lancia un'eccezione non gestita
@@ -157,6 +171,19 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	
+	private void checkPowerUp() {
+		
+		int row_tile = Bomberman.getInstance().getPos_y()/this.FINAL_TILE_SIZE;
+		int col_tile = Bomberman.getInstance().getPos_x()/this.FINAL_TILE_SIZE;
+		if (this.map_structure[row_tile][col_tile].containsPowerUp()){
+			System.out.println("has power up");
+			PowerUpModel power_up = this.map_structure[row_tile][col_tile].getPowerUp();
+			Bomberman.getInstance().setPower_up(power_up);
+			this.powerUpList.remove(power_up);
+			this.map_structure[row_tile][col_tile].setPower_up(null);
+		}
+	}
+
 	/*
 	 * funzione che controlla se due punti (che in genere rappresentano gli estremi di una 
 	 * Hitbox) si trovano in un tile con la collision attiva. Ritorna un valore
@@ -210,7 +237,7 @@ public class GamePanel extends JPanel implements Runnable {
 	 * incontrato un tile con collisione attiva. Se il personaggio è stato effettivamente mosso si aggiornano anche le animazioni.
 	 */
 	public void updateEnemyPos(Enemy e) {
-		EnemyView ev = (EnemyView)this.modelsView.get(e);
+		EnemyView ev = (EnemyView)this.characterModelsView.get(e);
 		//creazione hitbox che è minore di un tile di un pixel in tutte le direzioni, così da poter passare perfettamente tra due tiles.
 		int HitBoxUpperLeft_x = e.getPos_x()+1;
 		int HitBoxUpperLeft_y = e.getPos_y()+1;
@@ -276,7 +303,7 @@ public class GamePanel extends JPanel implements Runnable {
 	 */
 	public void updatePos() { //idealmente dovrebbe prendere come argomento un particolare Enemy ed essere chiamata su tutti gli enemy presenti nella mappa
 		Bomberman b = Bomberman.getInstance();
-		BombermanView bv = (BombermanView)this.modelsView.get(b);
+		BombermanView bv = (BombermanView)this.characterModelsView.get(b);
 		int HitBoxUpperLeft_x = b.getPos_x()+bv.getSpriteWidth()/2;
 		int HitBoxUpperLeft_y = b.getPos_y()+10;
 		int HitBoxUpperRight_x = b.getPos_x() + GamePanel.FINAL_TILE_SIZE-bv.getSpriteWidth()/2-1;
@@ -326,7 +353,8 @@ public class GamePanel extends JPanel implements Runnable {
 	 * true se il personaggio incontra una fiamma.
 	 */
 	public void bombDamage() {
-		for (Character c : this.damageableCharacters) {
+		for (Iterator<Character> iterator = this.damageableCharacters.iterator(); iterator.hasNext();){
+			Character c = iterator.next();
 			int HitBoxUpperLeft_x = (c.getPos_x()+10) / FINAL_TILE_SIZE;
 			int HitBoxUpperLeft_y = (c.getPos_y()+10) / FINAL_TILE_SIZE;
 			int HitBoxUpperRight_x = (c.getPos_x() + GamePanel.FINAL_TILE_SIZE-10)/ FINAL_TILE_SIZE;
@@ -341,7 +369,18 @@ public class GamePanel extends JPanel implements Runnable {
 					this.map_structure[HitBoxUpperRight_y][HitBoxUpperRight_x].isExploding() ||
 					this.map_structure[HitBoxBottomLeft_y][HitBoxBottomLeft_x].isExploding() ||
 					this.map_structure[HitBoxBottomRight_y][HitBoxBottomRight_x].isExploding() ) {
-				System.out.println("damage");
+				c.damage();
+//				if (is_dead) {
+//					boolean can_disappear = c.decreaseDeathAnimationCounter();
+//					/*
+//					 * se il death_animation_counter dura di più della fiamma il personaggio non sparisce, 
+//					 * bisogna creare can_disappear come campo della classe e fare questo controllo in un altra funzione
+//					 * a parte, e non bombdamage
+//					 */
+//					if (can_disappear) {						
+//						this.modelsView.remove(c);
+//					}
+//				}
 			}
 			
 		}
@@ -387,6 +426,12 @@ public class GamePanel extends JPanel implements Runnable {
 	        TileModel tile = entry.getKey();
 	        if (tile.destruction_counter == 0){
 				tile.setModel_num(1);
+				boolean has_power_up = tile.hasPowerUp();
+				if (has_power_up) {					
+					PowerUpModel power_up = new PowerUpModel(0, tile.getMatrix_pos_row(), tile.getMatrix_pos_col());
+					this.powerUpList.add(power_up);
+					tile.setPower_up(power_up);
+				}
 				tile.setCollision(false);	
 				iterator.remove();
 			}
@@ -394,6 +439,12 @@ public class GamePanel extends JPanel implements Runnable {
 				tile.destruction_counter--;
 			}
 	    }
+	}
+	
+	public void drawPowerUps(Graphics g) {
+		for (PowerUpModel p : powerUpList) {
+			g.drawImage(this.powerUpIcons.icons.get(p.getId()), p.getCol()*this.FINAL_TILE_SIZE, p.getRow()*this.FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+		}
 	}
 	
 	/*
@@ -462,13 +513,17 @@ public class GamePanel extends JPanel implements Runnable {
 	public void drawBombs(Graphics g) {
 		for (BombModel b : placedBombs.keySet()) {
 			
+			
+			
 			int b_tile_col = b.getPos_x()/FINAL_TILE_SIZE;
 			int b_tile_row = b.getPos_y()/FINAL_TILE_SIZE;
-
+			
+			
 			
 			//Disegna l'esplosione di ogni bomba, disegnando prima tutta la parte superiore, poi a destra, giù e infine a sinistra. Il disegno dell'esplosione
 			//si interrompe non appena si incontra un tile con collision attiva.
 			if (b.hasExploded()) {
+				
 				if (b.scoreUpdated == false) {
 					this.updateScore(500);
 					b.scoreUpdated = true;
@@ -497,13 +552,15 @@ public class GamePanel extends JPanel implements Runnable {
 								
 								tiles_to_update.put(this.map_structure[b_tile_row-(j+1)][b_tile_col], new Coordinates(b_tile_row-(j+1), b_tile_col));
 							}
-							break;
+//							break;
 						}
 						else {
 							//se l'esplosione può continuare ad espandersi si aggiunge il tile della fiamma al set di tiles di tutte le fiamme associate ad ogni bomba
 							//nota: questa cosa va fatta in un'altra funzione!
-							placedBombs.get(b).add(this.map_structure[b_tile_row-(j+1)][b_tile_col]);
-							this.map_structure[b_tile_row-(j+1)][b_tile_col].setExploding(true);
+							if (!b.processed_explosion) {								
+								placedBombs.get(b).add(this.map_structure[b_tile_row-(j+1)][b_tile_col]);
+								this.map_structure[b_tile_row-(j+1)][b_tile_col].setExploding(true);
+							}
 							//disegna la fiamma in quel tile prima di procedere al prossimo ed espanderla ulteriormente
 							g.drawImage(bombView.explosionMatrix[0][j][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
@@ -521,8 +578,10 @@ public class GamePanel extends JPanel implements Runnable {
 							break;							
 						}
 						else {
-							placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col+j+1]);
-							this.map_structure[b_tile_row][b_tile_col+j+1].setExploding(true);
+							if (!b.processed_explosion) {	
+								placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col+j+1]);
+								this.map_structure[b_tile_row][b_tile_col+j+1].setExploding(true);
+							}
 							g.drawImage(bombView.explosionMatrix[1][j][(b.explosionAnimationCounter/5)%3], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
 					}
@@ -541,8 +600,10 @@ public class GamePanel extends JPanel implements Runnable {
 							
 						}
 						else {
-							placedBombs.get(b).add(this.map_structure[b_tile_row+j+1][b_tile_col]);
-							this.map_structure[b_tile_row+j+1][b_tile_col].setExploding(true);
+							if (!b.processed_explosion) {								
+								placedBombs.get(b).add(this.map_structure[b_tile_row+j+1][b_tile_col]);
+								this.map_structure[b_tile_row+j+1][b_tile_col].setExploding(true);
+							}
 							g.drawImage(bombView.explosionMatrix[2][j][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
 					}
@@ -559,14 +620,48 @@ public class GamePanel extends JPanel implements Runnable {
 							break;
 						}
 						else {
-							placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col-(j+1)]);
-							this.map_structure[b_tile_row][b_tile_col-(j+1)].setExploding(true);
+							if (!b.processed_explosion) {
+								placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col-(j+1)]);
+								this.map_structure[b_tile_row][b_tile_col-(j+1)].setExploding(true);
+							}
 							g.drawImage(bombView.explosionMatrix[3][j][(b.explosionAnimationCounter/5)%3], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
 						}
 					}
 
 				}
+				for (Character c : this.damageableCharacters) {
+					var flames = placedBombs.get(b);
+					int c_tile_col = c.getPos_x()/FINAL_TILE_SIZE;
+					int c_tile_row = c.getPos_y()/FINAL_TILE_SIZE;
+					int HitBoxUpperLeft_x = (c.getPos_x()+10) / FINAL_TILE_SIZE;
+					int HitBoxUpperLeft_y = (c.getPos_y()+10) / FINAL_TILE_SIZE;
+					int HitBoxUpperRight_x = (c.getPos_x() + GamePanel.FINAL_TILE_SIZE-10)/ FINAL_TILE_SIZE;
+					int HitBoxUpperRight_y = (c.getPos_y()+10)/ FINAL_TILE_SIZE;
+					int HitBoxBottomLeft_x = (c.getPos_x()+10)/ FINAL_TILE_SIZE;
+					int HitBoxBottomLeft_y = (c.getPos_y() + GamePanel.FINAL_TILE_SIZE-10)/ FINAL_TILE_SIZE;
+					int HitBoxBottomRight_x = (c.getPos_x() + GamePanel.FINAL_TILE_SIZE-10)/ FINAL_TILE_SIZE;
+					int HitBoxBottomRight_y = (c.getPos_y() + GamePanel.FINAL_TILE_SIZE-10)/ FINAL_TILE_SIZE;
+					int row_pos = c.getPos_y()/FINAL_TILE_SIZE;
+					int col_pos = c.getPos_x()/FINAL_TILE_SIZE;
+					if (	flames.contains(this.map_structure[HitBoxUpperLeft_y][HitBoxUpperLeft_x]) || 
+							flames.contains(this.map_structure[HitBoxUpperRight_y][HitBoxUpperRight_x]) ||
+							flames.contains(this.map_structure[HitBoxBottomLeft_y][HitBoxBottomLeft_x]) ||
+							flames.contains(this.map_structure[HitBoxBottomRight_y][HitBoxBottomRight_x])){
+						if (!b.hasDamaged(c)) {
+							c.damage();
+							b.damaged(c);
+							System.out.println("damaged");
+						}
+						
+//					TileModel characterTile = this.map_structure[c_tile_row][c_tile_col];
+//					if(placedBombs.get(b).contains(characterTile) && !b.processed_explosion) {
+//						c.damage();
+//						System.out.println("damaged");
+//					}
+					}
+				}
 				b.processed_explosion = true;
+				
 			}
 			else {
 				BufferedImage bombSprite = bombView.bombAnimations[(b.animationCounter/2)%3];
@@ -578,7 +673,23 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 	
-	
+	public void manageDeadCharacters() {
+		for (Iterator<Character> iterator = this.characterModelsView.keySet().iterator(); iterator.hasNext();) {
+			Character c = iterator.next();
+			if (c.isDead()) {
+				boolean can_disappear = c.decreaseDeathAnimationCounter();
+
+				/*
+				 * se il death_animation_counter dura di più della fiamma il personaggio non sparisce, 
+				 * bisogna creare can_disappear come campo della classe e fare questo controllo in un'altra funzione
+				 * a parte, e non bombdamage
+				 */
+				if (can_disappear) {						
+					iterator.remove();
+				}
+			}
+		}
+	}
 	
 	
 	//Creiamo una coda di bombe. Poi per ogni bomba nella coda facciamo partire la funzione fireFuse che aggiorna
