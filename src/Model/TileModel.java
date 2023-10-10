@@ -14,7 +14,15 @@ public class TileModel {
 	private boolean collision = true;
 	private boolean is_destructible = true;
 	public int destruction_counter = 20;
-	public boolean containsBomb = false;
+	public BombModel placedBomb = null;
+	public BombModel getPlacedBomb() {
+		return placedBomb;
+	}
+
+	public void setPlacedBomb(BombModel placedBomb) {
+		this.placedBomb = placedBomb;
+	}
+
 	public boolean getCollision() {
 		return collision;
 	}
@@ -24,7 +32,7 @@ public class TileModel {
 	}
 	
 	public boolean hasPowerUp() {
-		int i = r.nextInt(5);
+		int i = r.nextInt(3);
 		if (i == 0) {
 			return true;
 		}

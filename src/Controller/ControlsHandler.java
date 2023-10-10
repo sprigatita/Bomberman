@@ -19,6 +19,7 @@ public class ControlsHandler implements KeyListener{
 	private boolean left;
 	private boolean right;
 	private boolean space;
+	private boolean kicks_bomb;
 	
 	public ControlsHandler() {
 	}
@@ -43,6 +44,10 @@ public class ControlsHandler implements KeyListener{
 
 	public boolean isSpace() {
 		return space;
+	}
+	
+	public boolean canKickBomb() {
+		return this.kicks_bomb;
 	}
 
 
@@ -79,6 +84,11 @@ public class ControlsHandler implements KeyListener{
 
 				space = true;
 				break;
+				
+			case KeyEvent.VK_E:
+				kicks_bomb = true;
+				break;
+				
 			default:
 			
 		}
@@ -106,6 +116,9 @@ public class ControlsHandler implements KeyListener{
 				break;
 			case KeyEvent.VK_SPACE:
 				space = false;
+				break;
+			case KeyEvent.VK_E:
+				kicks_bomb = false;
 				break;
 			default:
 			
