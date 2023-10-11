@@ -86,10 +86,12 @@ public class GamePanel extends JPanel implements Runnable {
 		//istance dell'unico possibile modello di Bomberman e della view associata
 		Bomberman b = Bomberman.getInstance();
 		BombermanView c = new BombermanView();
-		Enemy e = new Enemy();
+		Enemy e = new Walker();
 		EnemyView ev = new EnemyView();
 		this.damageableCharacters.add(b);
 		this.damageableCharacters.add(e);
+		b.addObserver(c);
+		e.addObserver(ev);
 		this.characterModelsView.put(b, c);
 		this.characterModelsView.put(e, ev);
 	}
@@ -148,10 +150,12 @@ public class GamePanel extends JPanel implements Runnable {
 				if (!c.isDead()) {
 					if (c instanceof Enemy) {
 						Enemy e = (Enemy)c;
-						updateEnemyPos(e);
+						e.move(FINAL_TILE_SIZE, map_structure, controls);
+//						updateEnemyPos(e);
 					}
 					if (c instanceof Bomberman) {
-						updatePos();
+//						updatePos();
+						Bomberman.getInstance().move(FINAL_TILE_SIZE, map_structure, controls);
 					}
 				}
 			}
@@ -219,6 +223,8 @@ public class GamePanel extends JPanel implements Runnable {
 			Bomberman.getInstance().setKicksBombs();
 		case 5:
 			Bomberman.getInstance().setGhosting_timer(200);
+		case 6:
+			Bomberman.getInstance().increaseExplosionRange();
 		default:
 		}
 	}
@@ -328,61 +334,61 @@ public class GamePanel extends JPanel implements Runnable {
 	 * checkCollision. Viene chiamata in seguito la funzione move() della classe Enemy che muove effettivamente il personaggio se e solo se non è stato
 	 * incontrato un tile con collisione attiva. Se il personaggio è stato effettivamente mosso si aggiornano anche le animazioni.
 	 */
-	public void updateEnemyPos(Enemy e) {
-		EnemyView ev = (EnemyView)this.characterModelsView.get(e);
-		//creazione hitbox che è minore di un tile di un pixel in tutte le direzioni, così da poter passare perfettamente tra due tiles.
-		int HitBoxUpperLeft_x = e.getPos_x()+1;
-		int HitBoxUpperLeft_y = e.getPos_y()+1;
-		int HitBoxUpperRight_x = e.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
-		int HitBoxUpperRight_y = e.getPos_y()+1;
-		int HitBoxBottomLeft_x = e.getPos_x()+1;
-		int HitBoxBottomLeft_y = e.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
-		int HitBoxBottomRight_x = e.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
-		int HitBoxBottomRight_y = e.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
-		//Quattro controlli per le quattro possibili direzioni
+//	public void updateEnemyPos(Enemy e) {
+//		EnemyView ev = (EnemyView)this.characterModelsView.get(e);
+//		//creazione hitbox che è minore di un tile di un pixel in tutte le direzioni, così da poter passare perfettamente tra due tiles.
+//		int HitBoxUpperLeft_x = e.getPos_x()+1;
+//		int HitBoxUpperLeft_y = e.getPos_y()+1;
+//		int HitBoxUpperRight_x = e.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
+//		int HitBoxUpperRight_y = e.getPos_y()+1;
+//		int HitBoxBottomLeft_x = e.getPos_x()+1;
+//		int HitBoxBottomLeft_y = e.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
+//		int HitBoxBottomRight_x = e.getPos_x() + GamePanel.FINAL_TILE_SIZE-1;
+//		int HitBoxBottomRight_y = e.getPos_y() + GamePanel.FINAL_TILE_SIZE-1;
+//		//Quattro controlli per le quattro possibili direzioni
+//		
+//		//Si controlla innanzitutto se in base alla direzioni non si finisce fuori dai confini della mappa
+//		if (e.dir == 'u' && 	e.getPos_y()-Bomberman.getInstance().getMoveSpeed() >= 0) {
+//			//Si verifica se, prevedendo il movimento successivo, non si incappi in un tile con collision, segnalandolo nel campo hitObstacle di Enemy. 
+//			e.hitObstacle= checkEnemyCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getInstance().getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getInstance().getMoveSpeed());
+//			//Il movimento eseguito dalla chiamata move() viene eseguito solo se hitObstacle = false.
+//			e.move();
+//			//L'animazione della view viene aggiornata solo se il personaggio si è effettivamente mosso
+//			if (!e.hitObstacle) {
+//				ev.setNextUp();				
+//			}
+//		}
+//		else if (e.dir == 'd' && e.getPos_y()+ev.getSpriteHeight()*2+Bomberman.getInstance().getMoveSpeed() <= 
+//				GamePanel.getPanelHeight()) {
+//			e.hitObstacle = checkEnemyCollision(HitBoxBottomLeft_x, HitBoxBottomLeft_y + Bomberman.getInstance().getMoveSpeed(), HitBoxBottomRight_x, HitBoxBottomRight_y + Bomberman.getInstance().getMoveSpeed());			
+//			e.move();
+//			if (!e.hitObstacle) {
+//				ev.setNextDown();				
+//			}
+//		}
+//		else if (e.dir == 'l' && e.getPos_x()-Bomberman.getInstance().getMoveSpeed() >= 0) {
+//			e.hitObstacle = checkEnemyCollision(HitBoxUpperLeft_x - Bomberman.getInstance().getMoveSpeed(), HitBoxUpperLeft_y, HitBoxBottomLeft_x - Bomberman.getInstance().getMoveSpeed(), HitBoxBottomLeft_y);
+//			e.move();
+//			if (!e.hitObstacle) {
+//				ev.setNextLeft();				
+//			}
+//		}
+//		else if (e.dir == 'r' && e.getPos_x()+ev.getSpriteWidth()*2+Bomberman.getInstance().getMoveSpeed() <= 
+//				GamePanel.getPanelWidth())  {
+//			e.hitObstacle = checkEnemyCollision(HitBoxUpperRight_x + Bomberman.getInstance().getMoveSpeed(), HitBoxUpperRight_y, HitBoxBottomRight_x + Bomberman.getInstance().getMoveSpeed(), HitBoxBottomRight_y);
+//			e.move();
+//			if (!e.hitObstacle) {
+//				ev.setNextRight();				
+//			}
+//		}
+//		//Se la direzione di movimento non era valida (e quindi non rientra in nessuna delle 4 condizioni precedenti) si cambia direzione.
+//		else {
+//			e.changeDir();
+//			
+//		}
 		
-		//Si controlla innanzitutto se in base alla direzioni non si finisce fuori dai confini della mappa
-		if (e.dir == 'u' && 	e.getPos_y()-Bomberman.getInstance().getMoveSpeed() >= 0) {
-			//Si verifica se, prevedendo il movimento successivo, non si incappi in un tile con collision, segnalandolo nel campo hitObstacle di Enemy. 
-			e.hitObstacle= checkEnemyCollision(HitBoxUpperLeft_x, HitBoxUpperLeft_y - Bomberman.getInstance().getMoveSpeed(), HitBoxUpperRight_x, HitBoxUpperRight_y - Bomberman.getInstance().getMoveSpeed());
-			//Il movimento eseguito dalla chiamata move() viene eseguito solo se hitObstacle = false.
-			e.move();
-			//L'animazione della view viene aggiornata solo se il personaggio si è effettivamente mosso
-			if (!e.hitObstacle) {
-				ev.setNextUp();				
-			}
-		}
-		else if (e.dir == 'd' && e.getPos_y()+ev.getSpriteHeight()*2+Bomberman.getInstance().getMoveSpeed() <= 
-				GamePanel.getPanelHeight()) {
-			e.hitObstacle = checkEnemyCollision(HitBoxBottomLeft_x, HitBoxBottomLeft_y + Bomberman.getInstance().getMoveSpeed(), HitBoxBottomRight_x, HitBoxBottomRight_y + Bomberman.getInstance().getMoveSpeed());			
-			e.move();
-			if (!e.hitObstacle) {
-				ev.setNextDown();				
-			}
-		}
-		else if (e.dir == 'l' && e.getPos_x()-Bomberman.getInstance().getMoveSpeed() >= 0) {
-			e.hitObstacle = checkEnemyCollision(HitBoxUpperLeft_x - Bomberman.getInstance().getMoveSpeed(), HitBoxUpperLeft_y, HitBoxBottomLeft_x - Bomberman.getInstance().getMoveSpeed(), HitBoxBottomLeft_y);
-			e.move();
-			if (!e.hitObstacle) {
-				ev.setNextLeft();				
-			}
-		}
-		else if (e.dir == 'r' && e.getPos_x()+ev.getSpriteWidth()*2+Bomberman.getInstance().getMoveSpeed() <= 
-				GamePanel.getPanelWidth())  {
-			e.hitObstacle = checkEnemyCollision(HitBoxUpperRight_x + Bomberman.getInstance().getMoveSpeed(), HitBoxUpperRight_y, HitBoxBottomRight_x + Bomberman.getInstance().getMoveSpeed(), HitBoxBottomRight_y);
-			e.move();
-			if (!e.hitObstacle) {
-				ev.setNextRight();				
-			}
-		}
-		//Se la direzione di movimento non era valida (e quindi non rientra in nessuna delle 4 condizioni precedenti) si cambia direzione.
-		else {
-			e.changeDir();
-			
-		}
 		
-		
-	}
+//	}
 	
 	
 	/*
@@ -550,7 +556,7 @@ public class GamePanel extends JPanel implements Runnable {
 				tile.setModel_num(1);
 				boolean has_power_up = tile.hasPowerUp();
 				if (has_power_up) {	
-					int i = this.random_gen.nextInt(4,6);
+					int i = this.random_gen.nextInt(6,7);
 					PowerUpModel power_up = new PowerUpModel(i, tile.getMatrix_pos_row(), tile.getMatrix_pos_col());
 					this.powerUpList.add(power_up);
 					tile.setPower_up(power_up);
@@ -637,6 +643,7 @@ public class GamePanel extends JPanel implements Runnable {
 	 * Funzione che disegna tutte le bombe piazzate, disegnando la bomba stessa se inesplosa, o l'esplosione se esplosa. 
 	 */
 	public void drawBombs(Graphics g) {
+		Bomberman bomberman = Bomberman.getInstance();
 		for (BombModel b : placedBombs.keySet()) {
 			
 			
@@ -649,7 +656,9 @@ public class GamePanel extends JPanel implements Runnable {
 			//Disegna l'esplosione di ogni bomba, disegnando prima tutta la parte superiore, poi a destra, giù e infine a sinistra. Il disegno dell'esplosione
 			//si interrompe non appena si incontra un tile con collision attiva.
 			if (b.hasExploded()) {
-				
+				if (!b.processed_explosion) {
+					b.setExplosionLimit(Bomberman.getInstance());
+				}
 				if (b.scoreUpdated == false) {
 					PowerUpModel power_up = Bomberman.getInstance().getPower_up();
 					if (power_up != null && power_up.getId() == 3) {
@@ -670,7 +679,7 @@ public class GamePanel extends JPanel implements Runnable {
 				placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col]);
 				this.map_structure[b_tile_row][b_tile_col].setExploding(true);
 				g.drawImage(bombView.cExplosionAnimations[(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
-				
+				//b.setExplosionLimit(Bomberman.getInstance());
 				//disegna tutta la parte superiore dell'esplosione, partendo dal centro e salendo
 				for (int j = 0; j < b.up_explosion_limit; j++) {
 					//si controllano i bounds della mappa per l'esplosione
@@ -684,7 +693,7 @@ public class GamePanel extends JPanel implements Runnable {
 								
 								tiles_to_update.put(this.map_structure[b_tile_row-(j+1)][b_tile_col], new Coordinates(b_tile_row-(j+1), b_tile_col));
 							}
-//							break;
+							break;
 						}
 						else {
 							//se l'esplosione può continuare ad espandersi si aggiunge il tile della fiamma al set di tiles di tutte le fiamme associate ad ogni bomba
@@ -694,7 +703,15 @@ public class GamePanel extends JPanel implements Runnable {
 								this.map_structure[b_tile_row-(j+1)][b_tile_col].setExploding(true);
 							}
 							//disegna la fiamma in quel tile prima di procedere al prossimo ed espanderla ulteriormente
-							g.drawImage(bombView.explosionMatrix[0][j][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							if (j == bomberman.getExplosion_limit()-1) {
+								g.drawImage(bombView.explosionMatrix[0][1][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+
+							}
+
+							else {
+								
+								g.drawImage(bombView.explosionMatrix[0][0][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()-(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							}
 						}
 					}
 				}
@@ -714,7 +731,15 @@ public class GamePanel extends JPanel implements Runnable {
 								placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col+j+1]);
 								this.map_structure[b_tile_row][b_tile_col+j+1].setExploding(true);
 							}
-							g.drawImage(bombView.explosionMatrix[1][j][(b.explosionAnimationCounter/5)%3], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							if (j == bomberman.getExplosion_limit()-1) {
+								g.drawImage(bombView.explosionMatrix[1][1][(b.explosionAnimationCounter/5)%3], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+
+							}
+
+							else {
+								g.drawImage(bombView.explosionMatrix[1][0][(b.explosionAnimationCounter/5)%3], b.getPos_x()+(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+
+							}
 						}
 					}
 				}
@@ -736,7 +761,16 @@ public class GamePanel extends JPanel implements Runnable {
 								placedBombs.get(b).add(this.map_structure[b_tile_row+j+1][b_tile_col]);
 								this.map_structure[b_tile_row+j+1][b_tile_col].setExploding(true);
 							}
-							g.drawImage(bombView.explosionMatrix[2][j][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							
+							if (j == bomberman.getExplosion_limit()-1) {
+								g.drawImage(bombView.explosionMatrix[2][1][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+
+							}
+
+							else {
+								g.drawImage(bombView.explosionMatrix[2][0][(b.explosionAnimationCounter/5)%3], b.getPos_x(), b.getPos_y()+(j+1)*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+	
+							}
 						}
 					}
 				}
@@ -756,7 +790,15 @@ public class GamePanel extends JPanel implements Runnable {
 								placedBombs.get(b).add(this.map_structure[b_tile_row][b_tile_col-(j+1)]);
 								this.map_structure[b_tile_row][b_tile_col-(j+1)].setExploding(true);
 							}
-							g.drawImage(bombView.explosionMatrix[3][j][(b.explosionAnimationCounter/5)%3], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+							if (j == bomberman.getExplosion_limit()-1) {
+								g.drawImage(bombView.explosionMatrix[3][1][(b.explosionAnimationCounter/5)%3], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+
+							}
+
+							else {
+								g.drawImage(bombView.explosionMatrix[3][0][(b.explosionAnimationCounter/5)%3], b.getPos_x()-(j+1)*FINAL_TILE_SIZE, b.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE,null);
+
+							}
 						}
 					}
 

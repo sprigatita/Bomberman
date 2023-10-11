@@ -7,6 +7,8 @@ import java.util.Observable;
 import java.util.Observer;
 import javax.imageio.ImageIO;
 
+import Model.Direction;
+
 public class BombermanView extends CharacterView {
 
 	public BombermanView() {
@@ -98,6 +100,30 @@ public class BombermanView extends CharacterView {
 		}
     			
     }
+
+//	@Override
+//	public void update(Observable o, Object arg) {
+//		if (arg != null) {
+//			
+//			Direction dir = (Direction)arg;
+//			switch(dir) {
+//			case UP:
+//				this.setNextUp();
+//				break;
+//			case RIGHT:
+//				this.setNextRight();
+//				break;
+//			case DOWN:
+//				this.setNextDown();
+//				break;
+//			case LEFT:
+//				this.setNextLeft();
+//				break;
+//			default:
+//			}
+//			
+//		}
+//	}
     
 
     

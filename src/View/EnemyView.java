@@ -86,7 +86,9 @@ package View;
 	    		downCount = 0;
 	    	}
 	    }
-	    
+
+
+
 		
 
 	

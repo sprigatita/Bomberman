@@ -7,10 +7,10 @@ import View.GamePanel;
 public class BombModel extends Entity {
 	
 	public boolean processed_explosion = false;
-	public int up_explosion_limit = 2;
-	public int right_explosion_limit = 2;
-	public int down_explosion_limit = 2;
-	public int left_explosion_limit = 2;
+	public int up_explosion_limit = 1;
+	public int right_explosion_limit = 1;
+	public int down_explosion_limit = 1;
+	public int left_explosion_limit = 1;
 	public boolean scoreUpdated = false;
 	private int fuse = 100;
 	private boolean hasExploded;
@@ -31,6 +31,13 @@ public class BombModel extends Entity {
 	
 	public void damaged(Character c) {
 		this.damagedCharacter.add(c);
+	}
+	
+	public void setExplosionLimit(Bomberman b) {
+		this.up_explosion_limit = b.getExplosion_limit();
+		this.right_explosion_limit = b.getExplosion_limit();
+		this.down_explosion_limit = b.getExplosion_limit();
+		this.left_explosion_limit = b.getExplosion_limit();
 	}
 	
 	public boolean hasDamaged(Character c) {

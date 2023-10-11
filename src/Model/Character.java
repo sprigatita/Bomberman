@@ -1,5 +1,6 @@
 package Model;
 
+import Controller.ControlsHandler;
 import Controller.Coordinates;
 import View.GamePanel;
 
@@ -10,6 +11,10 @@ public abstract class Character extends Entity{
 	protected int death_animation_counter = 60;
 	protected int move_speed = 4;
 	private Direction dir;
+	
+	public int getMoveSpeed() {
+		return this.move_speed;
+	}
 	
 	public Character() {
 		setPos_x(96);
@@ -70,6 +75,9 @@ public abstract class Character extends Entity{
 		return dir;
 	}
 	
+	public abstract void move(int tile_size, TileModel[][] map_structure, ControlsHandler control);
+	public abstract boolean checkCollision(Coordinates[] hit_box, Direction dir, TileModel[][] map_structure, int tile_size);
+	
 	public Coordinates[] hitBox(int tile_size) {
 		Coordinates[] hit_box = new Coordinates[4];
 		hit_box[0] = new Coordinates(this.getPos_x(), this.getPos_y());
@@ -77,6 +85,24 @@ public abstract class Character extends Entity{
 		hit_box[2] = new Coordinates(this.getPos_x()+tile_size-1, this.getPos_y()+tile_size-1);
 		hit_box[3] = new Coordinates(this.getPos_x(), this.getPos_y()+tile_size-1);
 		return hit_box;
+	}
+	
+	public Coordinates[] collisionHitBox(int tile_size) {
+		int hitBoxUpperLeft_x = getPos_x()+tile_size/5;
+		int hitBoxUpperLeft_y = getPos_y()+tile_size*2/5;
+		int hitBoxUpperRight_x = getPos_x() + tile_size - tile_size/5;
+		int hitBoxUpperRight_y = getPos_y()+tile_size*2/5;
+		int hitBoxBottomLeft_x = getPos_x()+tile_size/5;
+		int hitBoxBottomLeft_y = getPos_y()+tile_size-1;
+		int hitBoxBottomRight_x = getPos_x() + tile_size - tile_size/5;
+		int hitBoxBottomRight_y = getPos_y()+ tile_size-1;
+		Coordinates[] hit_box = new Coordinates[4];
+		hit_box[0] = new Coordinates(hitBoxUpperLeft_x, hitBoxUpperLeft_y);
+		hit_box[1] = new Coordinates(hitBoxUpperRight_x, hitBoxUpperRight_y);
+		hit_box[2] = new Coordinates(hitBoxBottomRight_x, hitBoxBottomRight_y);
+		hit_box[3] = new Coordinates(hitBoxBottomLeft_x, hitBoxBottomLeft_y);
+		return hit_box;
+		
 	}
 
 }
