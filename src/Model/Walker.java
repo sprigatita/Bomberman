@@ -4,7 +4,7 @@ import Controller.ControlsHandler;
 import Controller.Coordinates;
 import View.GamePanel;
 
-public class Walker extends Enemy{
+public class Walker extends Enemy implements Moveable{
 	
 	private Direction dir = Direction.UP;
 	private Direction prev_dir;

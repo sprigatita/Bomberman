@@ -5,7 +5,7 @@ import View.GamePanel;
 import Controller.ControlsHandler;
 import Controller.Coordinates;
 
-public class Bomberman extends Character {
+public class Bomberman extends Character implements Moveable{
 	//Inizio Singleton
 	private static Bomberman bomberman; //Istanza di se stesso
 	private PowerUpModel power_up = null;
