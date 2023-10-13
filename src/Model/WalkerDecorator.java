@@ -32,7 +32,7 @@ public abstract class WalkerDecorator implements Moveable{
 	
 	@Override
 	public void move(int tile_size, TileModel[][] map_structure, ControlsHandler controls) {
-		wrappee.move();
+		wrappee.move(tile_size, map_structure, controls);
 		
 	}
 	

@@ -38,6 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public FinestraDiGioco fdg;
 	AudioManager audio_samples = new AudioManager();
 	ArrayList<Character> damageableCharacters = new ArrayList<Character>();
+	ArrayList<Moveable> moveableCharacters = new ArrayList<Moveable>();
 	HashMap<Character, CharacterView> characterModelsView = new HashMap<Character, CharacterView>();
 	PowerUpView powerUpIcons = new PowerUpView();
 	//Tutti i dati relativi alle bombe: lista di tutte le bombe attive in un dato momento, le view associate ai modelli
@@ -45,9 +46,11 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	//placedBombs associa in ogni momento ad ogni bomba piazzata un set di tutti i tile che contengono le fiamme scatenate dall'esplosione di quella precisa
 	//bomba
+	ArrayList<TrapModel> traps = new ArrayList<TrapModel>();
 	HashMap<BombModel, HashSet<TileModel>> placedBombs = new HashMap<BombModel, HashSet<TileModel>>();
 	BombView bombView = new BombView();
 	private int bombTimer = 0;
+	EnemyView ew = new EnemyView();
 
 	ArrayList<PowerUpModel> powerUpList = new ArrayList<PowerUpModel>();
 	
@@ -88,12 +91,15 @@ public class GamePanel extends JPanel implements Runnable {
 		BombermanView c = new BombermanView();
 		Enemy e = new Walker();
 		EnemyView ev = new EnemyView();
+		this.moveableCharacters.add(new Trapper((Walker)e, traps));
+		this.moveableCharacters.add(b);
 		this.damageableCharacters.add(b);
 		this.damageableCharacters.add(e);
 		b.addObserver(c);
 		e.addObserver(ev);
 		this.characterModelsView.put(b, c);
 		this.characterModelsView.put(e, ev);
+		b.setHealth(2);
 	}
 	
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
@@ -111,6 +117,29 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	
+	public void drawTraps(Graphics g) {
+		for (Iterator<TrapModel> iterator = this.traps.iterator(); iterator.hasNext();) {
+			TrapModel t = iterator.next();
+			Bomberman b = Bomberman.getInstance();
+			int b_center_x = b.getPos_x() + FINAL_TILE_SIZE/2;
+			int b_center_y = b.getPos_y() + FINAL_TILE_SIZE/2;
+			int row = b_center_y/FINAL_TILE_SIZE;
+			int col = b_center_x/FINAL_TILE_SIZE;
+			if (t.getRow()  == row && t.getCol() == col) {
+				b.damage();
+				iterator.remove();
+			}
+			if (t.getDuration() >= 0) {
+				t.setDuration(t.getDuration()-10);
+			}
+			else {
+				iterator.remove();
+			}
+			System.out.println(traps.size());
+			g.drawImage(ew.sprite, t.getCol()*FINAL_TILE_SIZE, t.getRow()*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+		}
+	}
+	
 	//Override del paintComponent del GamePanel per disegnare in ordine sequenziale tutto il necessario del gioco, dal Bomberman, alle bombe
 	//a tutti i nemici
 	@Override
@@ -120,9 +149,9 @@ public class GamePanel extends JPanel implements Runnable {
 		terrain.drawTile(g, map_structure);
 		
 		drawBombs(g);
+//		drawTraps(g);
 		for (Character c : this.characterModelsView.keySet()) {
 			if (c.isDead()) {
-				System.out.println(c.getDeath_animation_counter());
 				g.drawImage(this.characterModelsView.get(c).getDeadSprite(c.getDeath_animation_counter()), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);
 
 			}
@@ -146,18 +175,21 @@ public class GamePanel extends JPanel implements Runnable {
 	public void run() {
 		
 		while(true) {
-			for (Character c : this.characterModelsView.keySet()) {
-				if (!c.isDead()) {
-					if (c instanceof Enemy) {
-						Enemy e = (Enemy)c;
-						e.move(FINAL_TILE_SIZE, map_structure, controls);
-//						updateEnemyPos(e);
-					}
-					if (c instanceof Bomberman) {
-//						updatePos();
-						Bomberman.getInstance().move(FINAL_TILE_SIZE, map_structure, controls);
-					}
-				}
+//			for (Character c : this.characterModelsView.keySet()) {
+//				if (!c.isDead()) {
+//					if (c instanceof Enemy) {
+//						Enemy e = (Enemy)c;
+//						e.move(FINAL_TILE_SIZE, map_structure, controls);
+////						updateEnemyPos(e);
+//					}
+//					if (c instanceof Bomberman) {
+////						updatePos();
+//						Bomberman.getInstance().move(FINAL_TILE_SIZE, map_structure, controls);
+//					}
+//				}
+//			}
+			for (Moveable m : this.moveableCharacters) {
+				m.move(FINAL_TILE_SIZE, map_structure, controls);
 			}
 			kickBombs();
 			slideBombs();
@@ -688,7 +720,6 @@ public class GamePanel extends JPanel implements Runnable {
 						//ai tile da modificare (tiles_to_update) se il tile è distruttibile.
 						if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getModel_num() != 1 && !b.processed_explosion) {
 							b.up_explosion_limit = j;
-							System.out.println(j);
 							if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getDestructible() == true) {
 								
 								tiles_to_update.put(this.map_structure[b_tile_row-(j+1)][b_tile_col], new Coordinates(b_tile_row-(j+1), b_tile_col));
@@ -719,7 +750,7 @@ public class GamePanel extends JPanel implements Runnable {
 					if (b_tile_row >= 0 && b_tile_row < Y_TILES && b_tile_col+j+1 >= 0 && b_tile_col+j+1 < X_TILES) {
 						if (this.map_structure[b_tile_row][b_tile_col+j+1].getModel_num() != 1 && !b.processed_explosion) {
 							b.right_explosion_limit = j;
-							System.out.println(j);
+							
 							if (this.map_structure[b_tile_row][b_tile_col+j+1].getDestructible() == true) {
 								
 								tiles_to_update.put(this.map_structure[b_tile_row][b_tile_col+j+1], new Coordinates(b_tile_row,b_tile_col+j+1));
@@ -748,7 +779,6 @@ public class GamePanel extends JPanel implements Runnable {
 						
 						if (this.map_structure[b_tile_row+j+1][b_tile_col].getModel_num() != 1 && !b.processed_explosion) {
 							b.down_explosion_limit = j;
-							System.out.println(j);
 							if (this.map_structure[b_tile_row+j+1][b_tile_col].getDestructible() == true) {
 								
 								tiles_to_update.put(this.map_structure[b_tile_row+j+1][b_tile_col], new Coordinates(b_tile_row+j+1,b_tile_col));
@@ -778,7 +808,6 @@ public class GamePanel extends JPanel implements Runnable {
 					if (b_tile_row >= 0 && b_tile_row < Y_TILES && b_tile_col-(j+1) >= 0 && b_tile_col-(j+1) < X_TILES) {	
 						if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getModel_num() != 1 && !b.processed_explosion) {
 							b.left_explosion_limit = j;
-							System.out.println(j);
 							if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getDestructible() == true) {
 								
 								tiles_to_update.put(this.map_structure[b_tile_row][b_tile_col-(j+1)], new Coordinates(b_tile_row+j+1,b_tile_col));
@@ -824,7 +853,7 @@ public class GamePanel extends JPanel implements Runnable {
 						if (!b.hasDamaged(c)) {
 							c.damage();
 							b.damaged(c);
-							System.out.println("damaged");
+							
 						}
 						
 //					TileModel characterTile = this.map_structure[c_tile_row][c_tile_col];

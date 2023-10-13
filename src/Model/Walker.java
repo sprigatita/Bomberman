@@ -9,7 +9,7 @@ public class Walker extends Enemy implements Moveable{
 	private Direction dir = Direction.UP;
 	private Direction prev_dir;
 	private Direction curr_dir;
-	
+	private int damage_timer = 0;
 	public Walker(int health) {
 		this.health = health;
 	}
@@ -177,6 +177,7 @@ public class Walker extends Enemy implements Moveable{
 	@SuppressWarnings("deprecation")
 	@Override
 	public void move(int tile_size, TileModel[][] map_structure, ControlsHandler controls) {
+		
 		Coordinates[] hit_box = this.collisionHitBox(tile_size);
 		
 		if(this.getPos_x()%GamePanel.FINAL_TILE_SIZE == 0 && this.getPos_y()%GamePanel.FINAL_TILE_SIZE == 0) {
@@ -236,6 +237,20 @@ public class Walker extends Enemy implements Moveable{
 		}
 		this.notifyObservers(this.getDir());
 		this.clearChanged();
+		Bomberman b = Bomberman.getInstance();
+		if ((b.getPos_x() <= hit_box[0].i && hit_box[0].i <= b.getPos_x()+tile_size) || 
+				(b.getPos_x() <= hit_box[1].i && hit_box[1].i <= b.getPos_x() + tile_size)) {
+			if ((b.getPos_y() <= hit_box[0].j && hit_box[0].j <= b.getPos_y()+tile_size) || 
+				(b.getPos_y() <= hit_box[3].j && hit_box[3].j <= b.getPos_y()+tile_size)) {
+				if(this.damage_timer <= 0) {					
+					b.damage();
+					System.out.println("hit");
+					this.damage_timer = 1000;
+				}
+			}
+			
+		}
+		this.damage_timer -= 10;
 	}
 
 	@Override
@@ -243,6 +258,7 @@ public class Walker extends Enemy implements Moveable{
 		boolean canPass1 = false;
 		boolean canPass2 = false;
 		boolean canPass3 = false;
+		Coordinates[] bomberman_hit_box = Bomberman.getInstance().collisionHitBox(tile_size);
 		switch(dir) {
 		case UP:
 			canPass1 = !map_structure[(hit_box[0].j-this.getMoveSpeed())/tile_size][hit_box[0].i/tile_size].getCollision();
