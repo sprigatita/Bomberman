@@ -10,7 +10,7 @@ public abstract class Character extends Entity{
 	protected int health;
 	protected int death_animation_counter = 60;
 	protected int move_speed = 4;
-	private Direction dir;
+	private Direction dir = Direction.UP;
 	
 	public int getMoveSpeed() {
 		return this.move_speed;

@@ -46,6 +46,8 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	//placedBombs associa in ogni momento ad ogni bomba piazzata un set di tutti i tile che contengono le fiamme scatenate dall'esplosione di quella precisa
 	//bomba
+	
+	ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	ArrayList<TrapModel> traps = new ArrayList<TrapModel>();
 	HashMap<BombModel, HashSet<TileModel>> placedBombs = new HashMap<BombModel, HashSet<TileModel>>();
 	BombView bombView = new BombView();
@@ -87,11 +89,12 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	private void instantiateCharacters() {
 		//istance dell'unico possibile modello di Bomberman e della view associata
+		
 		Bomberman b = Bomberman.getInstance();
 		BombermanView c = new BombermanView();
 		Enemy e = new Walker();
 		EnemyView ev = new EnemyView();
-		this.moveableCharacters.add(new Trapper((Walker)e, traps));
+		this.moveableCharacters.add(new Shooter((Walker)e, projectiles));
 		this.moveableCharacters.add(b);
 		this.damageableCharacters.add(b);
 		this.damageableCharacters.add(e);
@@ -99,7 +102,7 @@ public class GamePanel extends JPanel implements Runnable {
 		e.addObserver(ev);
 		this.characterModelsView.put(b, c);
 		this.characterModelsView.put(e, ev);
-		b.setHealth(2);
+		b.setHealth(5);
 	}
 	
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
@@ -140,6 +143,31 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 	}
 	
+	
+	public void drawProjectiles(Graphics g) {
+		for (Iterator<Projectile> iterator = this.projectiles.iterator(); iterator.hasNext();) {
+			Projectile t = iterator.next();
+//			Bomberman b = Bomberman.getInstance();
+//			int b_center_x = b.getPos_x() + FINAL_TILE_SIZE/2;
+//			int b_center_y = b.getPos_y() + FINAL_TILE_SIZE/2;
+//			int row = b_center_y/FINAL_TILE_SIZE;
+//			int col = b_center_x/FINAL_TILE_SIZE;
+//			if (t.getRow()  == row && t.getCol() == col) {
+//				b.damage();
+//				iterator.remove();
+//			}
+//			if (t.getDuration() >= 0) {
+//				t.setDuration(t.getDuration()-10);
+//			}
+//			else {
+//				iterator.remove();
+//			}
+//			System.out.println(traps.size());
+			g.drawImage(ew.sprite, t.getPos_x(), t.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+		}
+	}
+	
+	
 	//Override del paintComponent del GamePanel per disegnare in ordine sequenziale tutto il necessario del gioco, dal Bomberman, alle bombe
 	//a tutti i nemici
 	@Override
@@ -150,6 +178,7 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		drawBombs(g);
 //		drawTraps(g);
+		drawProjectiles(g);
 		for (Character c : this.characterModelsView.keySet()) {
 			if (c.isDead()) {
 				g.drawImage(this.characterModelsView.get(c).getDeadSprite(c.getDeath_animation_counter()), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);
@@ -160,7 +189,7 @@ public class GamePanel extends JPanel implements Runnable {
 			}
 		}
 		
-//		updateMap(g);
+		updateMap(g);
 		drawPowerUps(g);
 
 	}
@@ -191,6 +220,11 @@ public class GamePanel extends JPanel implements Runnable {
 			for (Moveable m : this.moveableCharacters) {
 				m.move(FINAL_TILE_SIZE, map_structure, controls);
 			}
+			for (Projectile p : this.projectiles) {
+				p.move(FINAL_TILE_SIZE, map_structure, controls);
+				
+			}
+			manageProjectiles();
 			kickBombs();
 			slideBombs();
 			checkPowerUp();
@@ -890,6 +924,15 @@ public class GamePanel extends JPanel implements Runnable {
 				if (can_disappear) {						
 					iterator.remove();
 				}
+			}
+		}
+	}
+	
+	public void manageProjectiles() {
+		for (Iterator<Projectile> iterator = this.projectiles.iterator(); iterator.hasNext();) {
+			Projectile p = iterator.next();
+			if (p.is_expired()) {
+				iterator.remove();
 			}
 		}
 	}
