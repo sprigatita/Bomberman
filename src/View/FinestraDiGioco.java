@@ -5,6 +5,8 @@ import javax.swing.*;
 import Model.User;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -14,12 +16,13 @@ import java.io.IOException;
 public class FinestraDiGioco extends JFrame{
     public FinestraDiGioco() {
         this.init();
+		this.setPreferredSize(new Dimension(500,500));
     }
 
     public void init() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
-        this.setTitle("JBomberman - Mignola col Prof");
+        this.setTitle("JBomberman");
         this.setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS)); // Layout verticale
         
 
@@ -35,6 +38,7 @@ public class FinestraDiGioco extends JFrame{
 
         this.pack();
         this.setLocationRelativeTo(null);
+        this.setVisible(true);
     }
 
     /* 
@@ -42,8 +46,8 @@ public class FinestraDiGioco extends JFrame{
      * noi le dovremo prendere dalla classe user quindi magari serve istanziare questo 
      * panel altrove.
      */
-    JLabel usernameLabel = new JLabel("Username: I love you Prof <3");
-    JLabel scoreLabel = new JLabel("Score: NON FUNZIONAAA"); // Ottieni lo score dall'utente
+    JLabel usernameLabel = new JLabel("Username: placeholder");
+    JLabel scoreLabel = new JLabel("Score: "); // Ottieni lo score dall'utente
     private JPanel createInfoPanel() {
         JPanel infoPanel = new JPanel();
         
@@ -60,10 +64,10 @@ public class FinestraDiGioco extends JFrame{
         return infoPanel;
     }
     
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            FinestraDiGioco finestra = new FinestraDiGioco();
-            finestra.setVisible(true);
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(() -> {
+//            FinestraDiGioco finestra = new FinestraDiGioco();
+//            finestra.setVisible(true);
+//        });
+//    }
 }

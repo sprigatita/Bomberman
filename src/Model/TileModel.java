@@ -18,11 +18,20 @@ public class TileModel {
 	public BombModel getPlacedBomb() {
 		return placedBomb;
 	}
+	
+	private boolean border = false;
 
 	public void setPlacedBomb(BombModel placedBomb) {
 		this.placedBomb = placedBomb;
 	}
 
+	public boolean isBorder() {
+		return this.border;
+	}
+	
+	public void setBorder() {
+		this.border = true;
+	}
 	public boolean getCollision() {
 		return collision;
 	}

@@ -10,6 +10,7 @@ import View.GamePanel;
 
 public abstract class Enemy extends Character {
 	
+	protected int damage_timer = 0;
 	Random r = new Random();
 
 	
@@ -22,7 +23,9 @@ public abstract class Enemy extends Character {
 	
 	
 	
-	public Enemy() {
+	public Enemy(int x, int y) {
+		this.setPos_x(x);
+		this.setPos_y(y);
 		this.health = 1;
 	}
 

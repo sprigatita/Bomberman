@@ -4,18 +4,18 @@ import Controller.ControlsHandler;
 import Controller.Coordinates;
 import View.GamePanel;
 
-public class Walker extends Enemy implements Moveable{
+public class Walker extends Enemy{
 	
-	private Direction dir = Direction.UP;
+//	private Direction dir = Direction.UP;
 	private Direction prev_dir;
 	private Direction curr_dir;
-	private int damage_timer = 0;
-	public Walker(int health) {
+	public Walker(int x, int y, int health) {
+		super(x,y);
 		this.health = health;
 	}
 	
-	public Walker() {
-		super();
+	public Walker(int x, int y) {
+		super(x, y);
 	}
 	
 	@Override
@@ -124,6 +124,10 @@ public class Walker extends Enemy implements Moveable{
 		return dir;
 	}
 	
+	public void setDir(Direction dir) {
+		this.dir = dir;
+	}
+	
 	public void changeDir() {
 //		int i = r.nextInt(4);
 //		Direction dir;
@@ -178,81 +182,85 @@ public class Walker extends Enemy implements Moveable{
 	@Override
 	public void move(int tile_size, TileModel[][] map_structure, ControlsHandler controls) {
 		
-		Coordinates[] hit_box = this.collisionHitBox(tile_size);
-		
-		if (!this.isDead()) {
+		if (!isDead()) {
 			
-			if(this.getPos_x()%GamePanel.FINAL_TILE_SIZE == 0 && this.getPos_y()%GamePanel.FINAL_TILE_SIZE == 0) {
-				int i = r.nextInt(5);
-				
-				if (i == 0) {
-					changeDir();
-				}
-			}
+			Coordinates[] hit_box = this.collisionHitBox(tile_size);
 			
-			if (this.dir == Direction.UP && 	getPos_y()-getMoveSpeed() >= 0) {
-				boolean canMove = !checkCollision(hit_box, Direction.UP, map_structure, tile_size);
-				if (canMove) {
-					move();
-					this.setChanged();
-//				bv.setNextUp();				
-				}
-				else {
-					changeDir();
-				}
-			}
-			else if (this.dir == Direction.DOWN && getPos_y()+tile_size+Bomberman.getInstance().getMoveSpeed() <= 
-					GamePanel.getPanelHeight()) {
-				boolean canMove = !checkCollision(hit_box, Direction.DOWN, map_structure, tile_size);		
-				if (canMove) {				
-					move();
-					this.setChanged();
-//				bv.setNextDown();
-				}
-				else {
-					changeDir();
-				}
-			}
-			else if (this.dir == Direction.LEFT && getPos_x()-Bomberman.getInstance().getMoveSpeed() >= 0) {
-				boolean canMove = !checkCollision(hit_box, Direction.LEFT, map_structure, tile_size);
-				if (canMove) {
-					move();
-					this.setChanged();
-//				bv.setNextLeft();				
-				}
-				else {
-					changeDir();
-				}
+			if (!this.isDead()) {
 				
-			}
-			else if (this.dir == Direction.RIGHT && getPos_x()+tile_size+Bomberman.getInstance().getMoveSpeed() <=GamePanel.getPanelWidth())  {
-				boolean canMove = !checkCollision(hit_box, Direction.RIGHT, map_structure, tile_size);
-				if (canMove) {
-					move();
-					this.setChanged();
-//				bv.setNextRight();			
-				}
-				else {
-					changeDir();
-				}
-				
-			}
-			this.notifyObservers(this.getDir());
-			this.clearChanged();
-			Bomberman b = Bomberman.getInstance();
-			if ((b.getPos_x() <= hit_box[0].i && hit_box[0].i <= b.getPos_x()+tile_size) || 
-					(b.getPos_x() <= hit_box[1].i && hit_box[1].i <= b.getPos_x() + tile_size)) {
-				if ((b.getPos_y() <= hit_box[0].j && hit_box[0].j <= b.getPos_y()+tile_size) || 
-						(b.getPos_y() <= hit_box[3].j && hit_box[3].j <= b.getPos_y()+tile_size)) {
-					if(this.damage_timer <= 0) {					
-						b.damage();
-						System.out.println("hit");
-						this.damage_timer = 1000;
+				if(this.getPos_x()%GamePanel.FINAL_TILE_SIZE == 0 && this.getPos_y()%GamePanel.FINAL_TILE_SIZE == 0) {
+					int i = r.nextInt(5);
+					
+					if (i == 0) {
+						changeDir();
 					}
 				}
 				
-			}
-			this.damage_timer -= 10;
+				if (this.dir == Direction.UP && 	getPos_y()-getMoveSpeed() >= 0) {
+					boolean canMove = !checkCollision(hit_box, Direction.UP, map_structure, tile_size);
+					if (canMove) {
+						move();
+						this.setChanged();
+//				bv.setNextUp();				
+					}
+					else {
+						changeDir();
+					}
+				}
+				else if (this.dir == Direction.DOWN && getPos_y()+tile_size+Bomberman.getInstance().getMoveSpeed() <= 
+						GamePanel.getPanelHeight()) {
+					boolean canMove = !checkCollision(hit_box, Direction.DOWN, map_structure, tile_size);		
+					if (canMove) {				
+						move();
+						this.setChanged();
+//				bv.setNextDown();
+					}
+					else {
+						changeDir();
+					}
+				}
+				else if (this.dir == Direction.LEFT && getPos_x()-Bomberman.getInstance().getMoveSpeed() >= 0) {
+					boolean canMove = !checkCollision(hit_box, Direction.LEFT, map_structure, tile_size);
+					if (canMove) {
+						move();
+						this.setChanged();
+//				bv.setNextLeft();				
+					}
+					else {
+						changeDir();
+					}
+					
+				}
+				else if (this.dir == Direction.RIGHT && getPos_x()+tile_size+Bomberman.getInstance().getMoveSpeed() <=GamePanel.getPanelWidth())  {
+					boolean canMove = !checkCollision(hit_box, Direction.RIGHT, map_structure, tile_size);
+					if (canMove) {
+						move();
+						this.setChanged();
+//				bv.setNextRight();			
+					}
+					else {
+						changeDir();
+					}
+					
+				}
+				this.notifyObservers(this.getDir());
+				this.clearChanged();
+				Bomberman b = Bomberman.getInstance();
+				if ((b.getPos_x() <= hit_box[0].i && hit_box[0].i <= b.getPos_x()+tile_size) || 
+						(b.getPos_x() <= hit_box[1].i && hit_box[1].i <= b.getPos_x() + tile_size)) {
+					if ((b.getPos_y() <= hit_box[0].j && hit_box[0].j <= b.getPos_y()+tile_size) || 
+							(b.getPos_y() <= hit_box[3].j && hit_box[3].j <= b.getPos_y()+tile_size)) {
+						if(this.damage_timer <= 0) {					
+							b.damage();
+							System.out.println("hit");
+							this.damage_timer = 1000;
+						}
+					}
+					
+				}
+				this.damage_timer -= 10;
+		}
+		
 		}
 		
 	}

@@ -5,7 +5,7 @@ import View.GamePanel;
 import Controller.ControlsHandler;
 import Controller.Coordinates;
 
-public class Bomberman extends Character implements Moveable{
+public class Bomberman extends Character{
 	//Inizio Singleton
 	private static Bomberman bomberman; //Istanza di se stesso
 	private PowerUpModel power_up = null;
@@ -19,6 +19,10 @@ public class Bomberman extends Character implements Moveable{
 	
 	public int getExplosion_limit() {
 		return explosion_limit;
+	}
+	
+	public void revive() {
+		this.dead = false;
 	}
 
 	public void setPower_up(PowerUpModel power_up) {
@@ -38,6 +42,7 @@ public class Bomberman extends Character implements Moveable{
 	}
 	private Bomberman() {
 		this.setHealth(1);
+		
 	}
 	
 	public static Bomberman getInstance() {

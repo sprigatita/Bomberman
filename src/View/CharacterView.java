@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 import Model.Direction;
 
 @SuppressWarnings("deprecation")
-public abstract class CharacterView implements Observer {
+public abstract class CharacterView extends EntityView implements Observer {
     protected BufferedImage sprite;
     protected BufferedImage dead_sprite;
     protected BufferedImage[] leftAnimations = new BufferedImage[3];
@@ -32,14 +32,14 @@ public abstract class CharacterView implements Observer {
 	
 	
 	
-	public BufferedImage getSprite() {
-		return sprite;
-	}
 	
 	public BufferedImage getDeadSprite(int animationCounter) {
 		return deathAnimations[5-(animationCounter/10)%6];
 	}
 	
+	public BufferedImage getSprite() {
+		return sprite;
+	}
     public int getSpriteHeight() {
         return sprite.getHeight();
     }

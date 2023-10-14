@@ -3,15 +3,16 @@ package Model;
 import java.util.ArrayList;
 
 import Controller.ControlsHandler;
+import Controller.Coordinates;
 import View.GamePanel;
 
-public class Trapper extends WalkerDecorator{
+public class Trapper extends Walker{
 
 	private ArrayList<TrapModel> traps;
 	private int trap_timer = 100;
 	
-	public Trapper(Walker wrappee, ArrayList<TrapModel> traps) {
-		super(wrappee);
+	public Trapper(int x, int y, ArrayList<TrapModel> traps) {
+		super(x,y);
 		this.traps = traps;
 		// TODO Auto-generated constructor stub
 	}
@@ -41,5 +42,11 @@ public class Trapper extends WalkerDecorator{
 		else {
 			trap_timer-=10;
 		}
+	}
+
+	@Override
+	public boolean checkCollision(Coordinates[] hit_box, Direction dir, TileModel[][] map_structure, int tile_size) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

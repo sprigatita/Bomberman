@@ -2,7 +2,7 @@ package Model;
 
 import Controller.ControlsHandler;
 
-public abstract class WalkerDecorator implements Moveable{
+public abstract class WalkerDecorator extends Character{
 
 	
 	public int getPos_x() {
@@ -21,6 +21,10 @@ public abstract class WalkerDecorator implements Moveable{
 		wrappee.setPos_y(pos_y);
 	}
 	
+	public boolean is_dead() {
+		System.out.println(this.wrappee!= null);
+		return wrappee.isDead();
+	}
 	
 	protected Walker wrappee;
 	

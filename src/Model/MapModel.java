@@ -12,11 +12,14 @@ public class MapModel {
 	//File di configurazione per indicare, insieme alla mappa, quali blocchi devono avere la collision attiva.
 	private int[] collision_config;
 	private int[] destructible_config;
+	private int[] border_config;
 	
-	public MapModel(String path, int[] collision_config, int[] destructible_config) {
+	
+	public MapModel(String path, int[] collision_config, int[] destructible_config, int[] border_config) {
 		
 		this.collision_config = collision_config;
 		this.destructible_config = destructible_config;
+		this.border_config = border_config;
 		Stream<String> mapText;
 		
 		
@@ -55,6 +58,13 @@ public class MapModel {
 				for (int d : destructible_config) {
 					if (mapStructure[i][j].getModel_num() == d) {
 						mapStructure[i][j].setDestructible(false);
+						break;
+					}
+				}
+				
+				for (int b : border_config) {
+					if (mapStructure[i][j].getModel_num() == b) {
+						mapStructure[i][j].setBorder();
 						break;
 					}
 				}

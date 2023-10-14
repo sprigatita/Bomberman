@@ -37,9 +37,10 @@ public class GamePanel extends JPanel implements Runnable {
 	private Random random_gen = new Random();
 	public FinestraDiGioco fdg;
 	AudioManager audio_samples = new AudioManager();
+	EntityInstantiator enemies = new EntityInstantiator("src/resources/enemies.txt");
 	ArrayList<Character> damageableCharacters = new ArrayList<Character>();
-	ArrayList<Moveable> moveableCharacters = new ArrayList<Moveable>();
-	HashMap<Character, CharacterView> characterModelsView = new HashMap<Character, CharacterView>();
+	ArrayList<Character> moveableCharacters = new ArrayList<Character>();
+	HashMap<Character, EntityView> characterModelsView = new HashMap<Character, EntityView>();
 	PowerUpView powerUpIcons = new PowerUpView();
 	//Tutti i dati relativi alle bombe: lista di tutte le bombe attive in un dato momento, le view associate ai modelli
 	//e un timer utilizzato per prevenire il piazzamento sequenziale troppo velocemente di diverse bombe
@@ -47,8 +48,18 @@ public class GamePanel extends JPanel implements Runnable {
 	//placedBombs associa in ogni momento ad ogni bomba piazzata un set di tutti i tile che contengono le fiamme scatenate dall'esplosione di quella precisa
 	//bomba
 	
-	ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
-	ArrayList<TrapModel> traps = new ArrayList<TrapModel>();
+//	HashMap<TileModel, Integer> laser_tiles = new HashMap<TileModel, Integer>();
+	HashMap<TileModel, Integer> laser_tiles = this.enemies.laser_tiles;
+	
+	int current_level = 0;
+	boolean level_over = false;
+	boolean pause = false;
+	int pause_timer = 0;
+	
+//	ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+	ArrayList<Projectile> projectiles = this.enemies.projectiles;
+//	ArrayList<TrapModel> traps = new ArrayList<TrapModel>();
+	ArrayList<TrapModel> traps = this.enemies.traps;
 	HashMap<BombModel, HashSet<TileModel>> placedBombs = new HashMap<BombModel, HashSet<TileModel>>();
 	BombView bombView = new BombView();
 	private int bombTimer = 0;
@@ -68,7 +79,12 @@ public class GamePanel extends JPanel implements Runnable {
 	//i seguenti due array andranno ricavati da un file txt di configurazione, sono momentaneamente impostati a mano per testare
 	int[] collision_config = {1};
 	int[] destructible_config = {14,12,8,9, 10, 11, 2,6,7,3,15, 17,16,18,13, 19, 22, 23};
-	MapModel map = new MapModel("src/resources/map.txt", collision_config, destructible_config);
+	int[] border_config = {12,8,9,24,13,14,2,6,7,21,3,15};
+	int[] myIntArray = new int[3];
+	String[] levels = new String[2];
+	String[] EntityInit = new String[2];
+	MapModel map = new MapModel("src/resources/map.txt", collision_config, destructible_config, border_config);
+	
 	TileModel[][] map_structure = map.getMapStructure();
 	ControlsHandler controls;
 	
@@ -87,27 +103,77 @@ public class GamePanel extends JPanel implements Runnable {
 		return Y_TILES*FINAL_TILE_SIZE;
 	}
 	
+	private void instantiateLevels() {
+		levels[0] = "src/resources/map.txt";
+		levels[1] = "src/resources/map1.txt";
+	}
+	
+	private void instantiateEnemies() {
+		this.EntityInit[0] = "src/resources/enemies.txt";
+		this.EntityInit[1] = "src/resources/enemies1.txt";
+	}
+	
+	public void changeLevel() {
+		map = new MapModel("src/resources/map.txt", collision_config, destructible_config, border_config);
+		this.map_structure = map.getMapStructure();
+		this.enemies = new EntityInstantiator(this.EntityInit[this.current_level]);
+		damageableCharacters = new ArrayList<Character>();
+		moveableCharacters = new ArrayList<Character>();
+		characterModelsView = new HashMap<Character, EntityView>();
+		projectiles = this.enemies.projectiles;
+		traps = this.enemies.traps;
+		laser_tiles = this.enemies.laser_tiles;
+		placedBombs = new HashMap<BombModel, HashSet<TileModel>>();
+	}
+	
 	private void instantiateCharacters() {
 		//istance dell'unico possibile modello di Bomberman e della view associata
 		
 		Bomberman b = Bomberman.getInstance();
-		BombermanView c = new BombermanView();
-		Enemy e = new Walker();
-		EnemyView ev = new EnemyView();
-		this.moveableCharacters.add(new Shooter((Walker)e, projectiles));
-		this.moveableCharacters.add(b);
-		this.damageableCharacters.add(b);
-		this.damageableCharacters.add(e);
-		b.addObserver(c);
-		e.addObserver(ev);
-		this.characterModelsView.put(b, c);
-		this.characterModelsView.put(e, ev);
+		BombermanView bw = new BombermanView();
+		b.setPos_x(480);
+		b.setPos_y(480);
 		b.setHealth(5);
+//		Enemy e = new Walker();
+//		Enemy e2 = new Laserer(96,96,Direction.DOWN, this.laser_tiles);
+//		Enemy e3 = new Shooter(projectiles);
+//		Enemy boss = new FatBoss();
+//		Boss1View bw = new Boss1View();
+		EnemyView ev = new EnemyView();
+//		this.moveableCharacters.add(e2);
+////		this.moveableCharacters.add(e3);
+////		this.moveableCharacters.add(e);
+		this.moveableCharacters.add(b);
+//		this.moveableCharacters.add(boss);
+//		this.damageableCharacters.add(b);
+////		this.damageableCharacters.add(e);
+////		this.damageableCharacters.add(e2);
+////		this.damageableCharacters.add(e3);
+		b.addObserver(bw);
+//		e.addObserver(ev);
+//		boss.addObserver(bw);
+//		this.characterModelsView.put(e2, ev);
+		this.characterModelsView.put(b, bw);
+//		this.characterModelsView.put(e, ev);
+//		this.characterModelsView.put(e3, ev);
+//		this.characterModelsView.put(boss, bw);
+//		b.setHealth(5);
+		for (Character c : this.enemies.chars) {
+			EnemyView ew = new EnemyView();
+			this.moveableCharacters.add(c);
+			this.characterModelsView.put(c, ew);
+			c.addObserver(ew);
+			this.damageableCharacters.add(c);
+		}
+		System.out.println(this.moveableCharacters.size());
 	}
 	
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
 	public GamePanel() {
+		this.instantiateLevels();
+		this.instantiateEnemies();
 		this.instantiateCharacters();
+		this.instantiateLevels();
 		this.setPreferredSize(new Dimension((X_TILES*FINAL_TILE_SIZE),(Y_TILES*FINAL_TILE_SIZE)));
 		this.setBackground(new Color(107, 106, 104));
 		controls = new ControlsHandler();
@@ -185,8 +251,23 @@ public class GamePanel extends JPanel implements Runnable {
 
 			}
 			else {
-				g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);				
+				if (c instanceof FatBoss) {
+					g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x(), c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*3, this.characterModelsView.get(c).getSpriteHeight()*3, null);
+					g.drawRect(c.getPos_x(), c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*3, this.characterModelsView.get(c).getSpriteHeight()*3);
+		
+				}
+				else {
+					
+					g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);				
+				}
 			}
+		}
+		
+		for (TileModel t : this.laser_tiles.keySet()) {
+			int x = t.getMatrix_pos_col()*GamePanel.FINAL_TILE_SIZE;
+			int y = t.getMatrix_pos_row()*GamePanel.FINAL_TILE_SIZE;
+			g.drawImage(ew.sprite, x, y, GamePanel.FINAL_TILE_SIZE, GamePanel.FINAL_TILE_SIZE, null);
+			
 		}
 		
 		updateMap(g);
@@ -202,8 +283,53 @@ public class GamePanel extends JPanel implements Runnable {
 	 */
 	@Override
 	public void run() {
+		int levelcounter = 0;
 		
 		while(true) {
+			levelcounter++;
+			if(Bomberman.getInstance().isDead()) {
+				Bomberman.getInstance().revive();
+				this.changeLevel();
+				this.instantiateCharacters();
+			}
+			if (this.moveableCharacters.size() == 1) {
+				this.current_level+=1;
+				this.changeLevel();
+				this.instantiateCharacters();
+				
+			}
+//			if (levelcounter == 100) {
+//				this.changeLevel();
+//				this.instantiateCharacters();
+//				
+//			}
+			
+//			
+	
+//			if (level_over) {
+//				this.map_structure 
+//			}
+//			if (this.controls.isSpace()) {
+//				System.out.println(pause_timer);
+//				if (pause_timer <= 0) {
+//					System.out.println("pressed space");
+//					if (this.pause) {
+//						this.pause = false;
+//					}
+//					else {
+//						this.pause = true;
+//					}
+//					pause_timer = 100000;
+//				}
+//				else {
+//					pause_timer -= 1;
+//				}
+//			}
+//			if (pause) {
+//				System.out.println("pause");
+//				continue;
+//			}
+			
 //			for (Character c : this.characterModelsView.keySet()) {
 //				if (!c.isDead()) {
 //					if (c instanceof Enemy) {
@@ -217,13 +343,15 @@ public class GamePanel extends JPanel implements Runnable {
 //					}
 //				}
 //			}
-			for (Moveable m : this.moveableCharacters) {
-				m.move(FINAL_TILE_SIZE, map_structure, controls);
+			for (Character c : this.moveableCharacters) {
+				c.move(FINAL_TILE_SIZE, map_structure, controls);
 			}
 			for (Projectile p : this.projectiles) {
 				p.move(FINAL_TILE_SIZE, map_structure, controls);
 				
 			}
+			
+			manageLasers();
 			manageProjectiles();
 			kickBombs();
 			slideBombs();
@@ -241,9 +369,24 @@ public class GamePanel extends JPanel implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	
 	}
 	
 	
+	private void manageLasers() {
+		 for (Iterator<Map.Entry<TileModel, Integer>> iterator = this.laser_tiles.entrySet().iterator(); iterator.hasNext();) {
+	            TileModel t = iterator.next().getKey();
+	            if ( this.laser_tiles.get(t) <= 0) {  
+	            	iterator.remove();
+	            }
+	           	else {
+	            	this.laser_tiles.put(t, this.laser_tiles.get(t) - 1);
+	           	} 
+	        }
+	
+		
+	}
+
 	private void checkPowerUp() {
 		
 		int row_tile1 = (Bomberman.getInstance().getPos_y()+10)/FINAL_TILE_SIZE;
@@ -866,7 +1009,7 @@ public class GamePanel extends JPanel implements Runnable {
 					}
 
 				}
-				for (Character c : this.damageableCharacters) {
+				for (Character c : this.moveableCharacters) {
 					var flames = placedBombs.get(b);
 					int c_tile_col = c.getPos_x()/FINAL_TILE_SIZE;
 					int c_tile_row = c.getPos_y()/FINAL_TILE_SIZE;
@@ -915,7 +1058,7 @@ public class GamePanel extends JPanel implements Runnable {
 			Character c = iterator.next();
 			if (c.isDead()) {
 				boolean can_disappear = c.decreaseDeathAnimationCounter();
-
+				this.moveableCharacters.remove(c);
 				/*
 				 * se il death_animation_counter dura di più della fiamma il personaggio non sparisce, 
 				 * bisogna creare can_disappear come campo della classe e fare questo controllo in un'altra funzione
