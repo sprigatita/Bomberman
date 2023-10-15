@@ -14,16 +14,13 @@ public class Bomberman extends Character{
 	private int ghosting_timer = 0;
 	private int explosion_limit = 1;
 
-	
-	
+
 	
 	public int getExplosion_limit() {
 		return explosion_limit;
 	}
 	
-	public void revive() {
-		this.dead = false;
-	}
+
 
 	public void setPower_up(PowerUpModel power_up) {
 		this.power_up = power_up;

@@ -9,14 +9,32 @@ import Controller.Coordinates;
 
 public class Laserer extends Enemy {
 	private int shooting_cd = 0;
+	private int laser_damage_cd = 0;
 	private Direction shooting_dir;
-	private HashMap<TileModel, Integer> laser_tiles;
+	private HashMap<TileModel, LaserUtil> laser_tiles;
 	
 	
-	public Laserer(int x, int y, Direction dir, HashMap<TileModel, Integer> laser_tiles) {
+	public Laserer(int x, int y, Direction dir, HashMap<TileModel, LaserUtil> laser_tiles) {
 		super(x,y);
 		this.shooting_dir = dir;
 		this.laser_tiles = laser_tiles;
+	}
+	
+	public void laserDamage(int tile_size, TileModel[][] map_structure) {
+		Bomberman b = Bomberman.getInstance();
+		Coordinates[] hit_box = b.collisionHitBox(tile_size);
+		for (Coordinates c : hit_box) {
+			int row = c.j/tile_size;
+			int col = c.i/tile_size;
+			if (this.laser_tiles.containsKey(map_structure[row][col])){
+				if (this.laser_damage_cd <= 0) {
+					b.damage();			
+					System.out.println("hit");
+					this.laser_damage_cd = 100;
+				}
+			}
+		}
+		this.laser_damage_cd-=1;
 	}
 
 	@Override
@@ -31,6 +49,7 @@ public class Laserer extends Enemy {
 		else {
 			shooting_cd -= 1;
 		}
+		this.laserDamage(tile_size, map_structure);
 		
 		Coordinates[] hit_box = this.collisionHitBox(tile_size);
 		Bomberman b = Bomberman.getInstance();
@@ -47,6 +66,8 @@ public class Laserer extends Enemy {
 			
 		}
 		this.damage_timer -= 10;
+		this.setChanged();
+		this.notifyObservers(null);
 
 	}
 
@@ -56,34 +77,34 @@ public class Laserer extends Enemy {
 		return false;
 	}
 	
-	public void shootLaser(int tile_size, TileModel[][] map_structure, HashMap<TileModel, Integer> laser_tiles) {
+	public void shootLaser(int tile_size, TileModel[][] map_structure, HashMap<TileModel, LaserUtil> laser_tiles) {
 		int pos_row = this.getPos_y()/tile_size;
 		int pos_col = this.getPos_y()/tile_size;
 		int i = 1;
 		switch(this.shooting_dir) {
 		case UP:
 			while(!map_structure[pos_row - i][pos_col].getCollision()) {
-				this.laser_tiles.put(map_structure[pos_row - i][pos_col], 50);
+				this.laser_tiles.put(map_structure[pos_row - i][pos_col], new LaserUtil(50, this.shooting_dir));
 				i+=1;
 			}
 			break;
 		case RIGHT:
 			while(!map_structure[pos_row][pos_col+i].getCollision()) {
-				this.laser_tiles.put(map_structure[pos_row][pos_col+i], 50);
+				this.laser_tiles.put(map_structure[pos_row][pos_col+i], new LaserUtil(50, this.shooting_dir));
 				i+=1;
 			}
 			break;
 		case DOWN:
 			System.out.println("insisde down");
 			while(!map_structure[pos_row + i][pos_col].getCollision()) {
-				this.laser_tiles.put(map_structure[pos_row + i][pos_col], 50);
+				this.laser_tiles.put(map_structure[pos_row + i][pos_col], new LaserUtil(50, this.shooting_dir));
 				System.out.println(this.laser_tiles.size() + i);
 				i+=1;
 			}
 			break;
 		case LEFT:
 			while(!map_structure[pos_row][pos_col-i].getCollision()) {
-				this.laser_tiles.put(map_structure[pos_row][pos_col -i], 50);
+				this.laser_tiles.put(map_structure[pos_row][pos_col -i], new LaserUtil(50, this.shooting_dir));
 				i+=1;
 			}
 			break;
@@ -91,15 +112,15 @@ public class Laserer extends Enemy {
 			
 		}
 		
-		Bomberman b = Bomberman.getInstance();
-		Coordinates[] hit_box = b.collisionHitBox(tile_size);
-		for (Coordinates c : hit_box) {
-			int row = c.j/tile_size;
-			int col = c.i/tile_size;
-			if (this.laser_tiles.containsKey(map_structure[row][col])){
-				b.damage();
-			}
-		}
+//		Bomberman b = Bomberman.getInstance();
+//		Coordinates[] hit_box = b.collisionHitBox(tile_size);
+//		for (Coordinates c : hit_box) {
+//			int row = c.j/tile_size;
+//			int col = c.i/tile_size;
+//			if (this.laser_tiles.containsKey(map_structure[row][col])){
+//				b.damage();
+//			}
+//		}
 		
 	}
 

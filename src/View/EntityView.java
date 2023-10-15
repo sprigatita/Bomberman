@@ -1,8 +1,9 @@
 package View;
 
 import java.awt.image.BufferedImage;
+import java.util.Observer;
 
-public abstract class EntityView {
+public abstract class EntityView implements Observer {
 	protected BufferedImage sprite;
 	public EntityView() {
 		// TODO Auto-generated constructor stub
@@ -10,17 +11,17 @@ public abstract class EntityView {
 	
 
 	public BufferedImage getSprite() {
-		return sprite;
+		return this.sprite;
 	}
     public int getSpriteHeight() {
-        return sprite.getHeight();
+        return this.sprite.getHeight();
     }
     
     
     public abstract BufferedImage getDeadSprite(int animationCounter);
     
     public int getSpriteWidth() {
-    	return sprite.getWidth();
+    	return this.sprite.getWidth();
     }
 
 }

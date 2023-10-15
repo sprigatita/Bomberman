@@ -11,6 +11,21 @@ public abstract class Character extends Entity{
 	protected int death_animation_counter = 60;
 	protected int move_speed = 4;
 	protected Direction dir = Direction.UP;
+	private boolean is_actually_dead = false;
+	
+	
+	public void setReallyDead() {
+		this.is_actually_dead = true;
+	}
+	
+	public boolean isReallyDead() {
+		return this.is_actually_dead;
+	}
+	
+	public void revive() {
+		this.dead = false;
+		this.is_actually_dead = false;
+	}
 	
 	public int getMoveSpeed() {
 		return this.move_speed;

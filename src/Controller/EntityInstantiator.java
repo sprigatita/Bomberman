@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import Model.Character;
 import Model.Direction;
+import Model.LaserUtil;
 import Model.Laserer;
 import Model.MapModel;
 import Model.Projectile;
@@ -17,13 +18,19 @@ import Model.TileModel;
 import Model.TrapModel;
 import Model.Trapper;
 import Model.Walker;
+import View.EntityView;
+import View.ImmobileView;
+import View.ShooterView;
+import View.TrapperView;
+import View.WalkerView;
 
 public class EntityInstantiator {
 	
 	public ArrayList<Character> chars = new ArrayList<Character>(); 
 	public ArrayList<Projectile> projectiles = new ArrayList<Projectile>();;
 	public ArrayList<TrapModel> traps = new ArrayList<TrapModel>();
-	public HashMap<TileModel, Integer> laser_tiles = new HashMap<TileModel, Integer>();
+	public HashMap<TileModel, LaserUtil> laser_tiles = new HashMap<TileModel, LaserUtil>();
+	public HashMap<Character, EntityView> characterModelsView = new HashMap<Character, EntityView>();
 
 	public EntityInstantiator(String path) {
 
@@ -48,22 +55,40 @@ public class EntityInstantiator {
 		String[] values = s.split(" ");
 		switch(values[0]) {
 		case "0":
-			return new Walker(Integer.parseInt(values[1]), Integer.parseInt(values[2]));
+			Character c = new Walker(Integer.parseInt(values[1]), Integer.parseInt(values[2]));
+			this.characterModelsView.put(c, new WalkerView());
+			return c;
 		case "1":
-			return new Shooter(Integer.parseInt(values[1]), Integer.parseInt(values[2]), this.projectiles);
+			Character c1 = new Shooter(Integer.parseInt(values[1]), Integer.parseInt(values[2]), this.projectiles);
+			this.characterModelsView.put(c1, new ShooterView());
+			return c1;
 
 		case "2":
-			return new Trapper(Integer.parseInt(values[1]), Integer.parseInt(values[2]), this.traps);
+			Character c2 = new Trapper(Integer.parseInt(values[1]), Integer.parseInt(values[2]), this.traps);
+			this.characterModelsView.put(c2, new TrapperView());
+			return c2;
 		case "3":
+			Character c3; 
 			switch(values[3]) {
 			case "0":
-				return new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.UP, this.laser_tiles);
+				c3 = new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.UP, this.laser_tiles);
+				this.characterModelsView.put(c3, new ImmobileView());
+				return c3;
 			case "1":
-				return new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.RIGHT, this.laser_tiles);
+				c3 = new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.RIGHT, this.laser_tiles);
+				this.characterModelsView.put(c3, new ImmobileView());
+				return c3;
+				
 			case "2":
-				return new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.DOWN, this.laser_tiles);
+				c3 = new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.DOWN, this.laser_tiles);
+				this.characterModelsView.put(c3, new ImmobileView());
+				return c3;
+				
 			case "3":
-				return new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.LEFT, this.laser_tiles);
+				c3 = new Laserer(Integer.parseInt(values[1]), Integer.parseInt(values[2]), Direction.LEFT, this.laser_tiles);
+				this.characterModelsView.put(c3, new ImmobileView());
+				return c3;
+				
 			}
 		default:
 			return new Walker(Integer.parseInt(values[1]), Integer.parseInt(values[2]));

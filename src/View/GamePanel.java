@@ -5,6 +5,7 @@ import java.util.Random;
 import Model.*;
 import Model.Character;
 
+import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -16,6 +17,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,8 +42,11 @@ public class GamePanel extends JPanel implements Runnable {
 	EntityInstantiator enemies = new EntityInstantiator("src/resources/enemies.txt");
 	ArrayList<Character> damageableCharacters = new ArrayList<Character>();
 	ArrayList<Character> moveableCharacters = new ArrayList<Character>();
-	HashMap<Character, EntityView> characterModelsView = new HashMap<Character, EntityView>();
+//	HashMap<Character, EntityView> characterModelsView = new HashMap<Character, EntityView>();
+	HashMap<Character, EntityView> characterModelsView = this.enemies.characterModelsView;
+	public HashMap<String, EntityView> modelViews = new HashMap<String, EntityView>();
 	PowerUpView powerUpIcons = new PowerUpView();
+	BufferedImage projectile;
 	//Tutti i dati relativi alle bombe: lista di tutte le bombe attive in un dato momento, le view associate ai modelli
 	//e un timer utilizzato per prevenire il piazzamento sequenziale troppo velocemente di diverse bombe
 	
@@ -49,7 +54,8 @@ public class GamePanel extends JPanel implements Runnable {
 	//bomba
 	
 //	HashMap<TileModel, Integer> laser_tiles = new HashMap<TileModel, Integer>();
-	HashMap<TileModel, Integer> laser_tiles = this.enemies.laser_tiles;
+	HashMap<TileModel, LaserUtil> laser_tiles = this.enemies.laser_tiles;
+	HashMap<Direction, BufferedImage> laser_views = new HashMap<Direction, BufferedImage>();
 	
 	int current_level = 0;
 	boolean level_over = false;
@@ -92,6 +98,7 @@ public class GamePanel extends JPanel implements Runnable {
 	//Coordinates per tener conto delle coordinate del tile da aggiornare. Si può semplificare aggiornando TileModel così da immagazzinare lui stesso 
 	//le coordinate del tile a cui si riferisce.
 	Map<TileModel, Coordinates> tiles_to_update = new HashMap<TileModel, Coordinates>();
+	private int death_screen_timer = -1;
 	
 	
 	//getter e setters per le varie dimensioni del pannello di gioco
@@ -103,12 +110,29 @@ public class GamePanel extends JPanel implements Runnable {
 		return Y_TILES*FINAL_TILE_SIZE;
 	}
 	
+	private void instantiateViews(int i) {
+		
+	}
+	
 	private void instantiateLevels() {
 		levels[0] = "src/resources/map.txt";
 		levels[1] = "src/resources/map1.txt";
 	}
 	
 	private void instantiateEnemies() {
+		
+		try {
+			this.projectile = ImageIO.read(new File("src/resources/enemy/projectile.png"));
+			BufferedImage laser_1 = ImageIO.read(new File("src/resources/enemy/Laserer/laser_1.png"));
+			BufferedImage laser_2 = ImageIO.read(new File("src/resources/enemy/Laserer/laser_2.png"));
+			this.laser_views.put(Direction.UP,laser_2);
+			this.laser_views.put(Direction.DOWN,laser_2);
+			this.laser_views.put(Direction.LEFT,laser_1);
+			this.laser_views.put(Direction.RIGHT,laser_1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.EntityInit[0] = "src/resources/enemies.txt";
 		this.EntityInit[1] = "src/resources/enemies1.txt";
 	}
@@ -124,6 +148,7 @@ public class GamePanel extends JPanel implements Runnable {
 		traps = this.enemies.traps;
 		laser_tiles = this.enemies.laser_tiles;
 		placedBombs = new HashMap<BombModel, HashSet<TileModel>>();
+		powerUpList = new ArrayList<PowerUpModel>();
 	}
 	
 	private void instantiateCharacters() {
@@ -139,7 +164,7 @@ public class GamePanel extends JPanel implements Runnable {
 //		Enemy e3 = new Shooter(projectiles);
 //		Enemy boss = new FatBoss();
 //		Boss1View bw = new Boss1View();
-		EnemyView ev = new EnemyView();
+		EnemyView ev = new WalkerView();
 //		this.moveableCharacters.add(e2);
 ////		this.moveableCharacters.add(e3);
 ////		this.moveableCharacters.add(e);
@@ -159,7 +184,7 @@ public class GamePanel extends JPanel implements Runnable {
 //		this.characterModelsView.put(boss, bw);
 //		b.setHealth(5);
 		for (Character c : this.enemies.chars) {
-			EnemyView ew = new EnemyView();
+			EntityView ew = this.characterModelsView.get(c);
 			this.moveableCharacters.add(c);
 			this.characterModelsView.put(c, ew);
 			c.addObserver(ew);
@@ -229,7 +254,7 @@ public class GamePanel extends JPanel implements Runnable {
 //				iterator.remove();
 //			}
 //			System.out.println(traps.size());
-			g.drawImage(ew.sprite, t.getPos_x(), t.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+			g.drawImage(projectile, t.getPos_x(), t.getPos_y(), FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
 		}
 	}
 	
@@ -238,40 +263,53 @@ public class GamePanel extends JPanel implements Runnable {
 	//a tutti i nemici
 	@Override
 	public void paintComponent(Graphics g) {
-		Graphics2D gg = (Graphics2D)g;
-		super.paintComponent(gg);
-		terrain.drawTile(g, map_structure);
 		
-		drawBombs(g);
-//		drawTraps(g);
-		drawProjectiles(g);
-		for (Character c : this.characterModelsView.keySet()) {
-			if (c.isDead()) {
-				g.drawImage(this.characterModelsView.get(c).getDeadSprite(c.getDeath_animation_counter()), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);
-
+		if (this.death_screen_timer >= 0) {
+			if (this.death_screen_timer == 0) {
+				this.audio_samples.play(0);
 			}
-			else {
-				if (c instanceof FatBoss) {
-					g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x(), c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*3, this.characterModelsView.get(c).getSpriteHeight()*3, null);
-					g.drawRect(c.getPos_x(), c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*3, this.characterModelsView.get(c).getSpriteHeight()*3);
-		
+			g.fillRect(0, 0, this.getPanelWidth(), this.getPanelHeight());
+			this.death_screen_timer-=1;
+
+		}
+		else {
+			
+			Graphics2D gg = (Graphics2D)g;
+			super.paintComponent(gg);
+			terrain.drawTile(g, map_structure);
+			
+			drawBombs(g);
+//		drawTraps(g);
+			drawProjectiles(g);
+			for (Character c : this.characterModelsView.keySet()) {
+				if (c.isDead()) {
+					g.drawImage(this.characterModelsView.get(c).getDeadSprite(c.getDeath_animation_counter()), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);
+					
 				}
 				else {
-					
-					g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);				
+					if (c instanceof FatBoss) {
+						g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x(), c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*3, this.characterModelsView.get(c).getSpriteHeight()*3, null);
+						g.drawRect(c.getPos_x(), c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*3, this.characterModelsView.get(c).getSpriteHeight()*3);
+						
+					}
+					else {
+						
+						g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);				
+					}
 				}
 			}
-		}
-		
-		for (TileModel t : this.laser_tiles.keySet()) {
-			int x = t.getMatrix_pos_col()*GamePanel.FINAL_TILE_SIZE;
-			int y = t.getMatrix_pos_row()*GamePanel.FINAL_TILE_SIZE;
-			g.drawImage(ew.sprite, x, y, GamePanel.FINAL_TILE_SIZE, GamePanel.FINAL_TILE_SIZE, null);
 			
+			for (TileModel t : this.laser_tiles.keySet()) {
+				int x = t.getMatrix_pos_col()*GamePanel.FINAL_TILE_SIZE;
+				int y = t.getMatrix_pos_row()*GamePanel.FINAL_TILE_SIZE;
+				System.out.println(this.laser_tiles.get(t).dir);
+				g.drawImage(this.laser_views.get(this.laser_tiles.get(t).dir), x, y, GamePanel.FINAL_TILE_SIZE, GamePanel.FINAL_TILE_SIZE, null);
+				
+			}
+			
+//			updateMap(g);
+			drawPowerUps(g);
 		}
-		
-		updateMap(g);
-		drawPowerUps(g);
 
 	}
 	
@@ -283,14 +321,18 @@ public class GamePanel extends JPanel implements Runnable {
 	 */
 	@Override
 	public void run() {
-		int levelcounter = 0;
 		
 		while(true) {
-			levelcounter++;
-			if(Bomberman.getInstance().isDead()) {
+			if (this.death_screen_timer >= 0) {
+				repaint();
+				continue;
+			}
+			if(Bomberman.getInstance().isReallyDead()) {
+				this.audio_samples.clips.get(0).stop();
 				Bomberman.getInstance().revive();
 				this.changeLevel();
 				this.instantiateCharacters();
+				this.death_screen_timer = 10000;
 			}
 			if (this.moveableCharacters.size() == 1) {
 				this.current_level+=1;
@@ -374,13 +416,13 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	
 	private void manageLasers() {
-		 for (Iterator<Map.Entry<TileModel, Integer>> iterator = this.laser_tiles.entrySet().iterator(); iterator.hasNext();) {
+		 for (Iterator<Map.Entry<TileModel, LaserUtil>> iterator = this.laser_tiles.entrySet().iterator(); iterator.hasNext();) {
 	            TileModel t = iterator.next().getKey();
-	            if ( this.laser_tiles.get(t) <= 0) {  
+	            if ( this.laser_tiles.get(t).i <= 0) {  
 	            	iterator.remove();
 	            }
 	           	else {
-	            	this.laser_tiles.put(t, this.laser_tiles.get(t) - 1);
+	            	this.laser_tiles.put(t, new LaserUtil(this.laser_tiles.get(t).i - 1,this.laser_tiles.get(t).dir ));
 	           	} 
 	        }
 	
@@ -770,6 +812,7 @@ public class GamePanel extends JPanel implements Runnable {
 					this.powerUpList.add(power_up);
 					tile.setPower_up(power_up);
 				}
+				tile.setDisappearing(false);
 				tile.setCollision(false);	
 				iterator.remove();
 			}
@@ -788,19 +831,19 @@ public class GamePanel extends JPanel implements Runnable {
 	/*
 	 * Funzione che aggiorna la view di un tile dopo che è stato modificato da explodeBlocks (e quindi è stato fatto diventare un tile di tipo terreno).
 	 */
-	public void updateMap(Graphics g) {
-		
-		//per ogni tile nei tiles da aggiornare (tutti quelli entrati in contatto con un'esplosione) controlla se esso sia diventato pavimento, e nel caso
-		//lo ridisegna
-		for (TileModel tile : this.tiles_to_update.keySet()) {
-			if (tile.getModel_num() == 1) {
-				BufferedImage tile_image = terrain.getTileSamples(tile.getModel_num()-1);
-				g.drawImage(tile_image, this.tiles_to_update.get(tile).i, this.tiles_to_update.get(tile).i, FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
-				
-			}
-		}
-	}
-	
+//	public void updateMap(Graphics g) {
+//		
+//		//per ogni tile nei tiles da aggiornare (tutti quelli entrati in contatto con un'esplosione) controlla se esso sia diventato pavimento, e nel caso
+//		//lo ridisegna
+//		for (TileModel tile : this.tiles_to_update.keySet()) {
+//			if (tile.getModel_num() == 1) {
+//				BufferedImage tile_image = terrain.getTileSamples(tile.getModel_num()-1);
+//				g.drawImage(tile_image, this.tiles_to_update.get(tile).i, this.tiles_to_update.get(tile).i, FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
+//				
+//			}
+//		}
+//	}
+//	
 	/*
 	 * Funzione che piazza la bomba in seguito alla pressione della spacebar (aggiungendola alla lista di bombe che verranno disegnate nel ciclo di gioco)
 	 */
@@ -898,7 +941,7 @@ public class GamePanel extends JPanel implements Runnable {
 						if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getModel_num() != 1 && !b.processed_explosion) {
 							b.up_explosion_limit = j;
 							if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getDestructible() == true) {
-								
+								this.map_structure[b_tile_row-(j+1)][b_tile_col].setDisappearing(true);
 								tiles_to_update.put(this.map_structure[b_tile_row-(j+1)][b_tile_col], new Coordinates(b_tile_row-(j+1), b_tile_col));
 							}
 							break;
@@ -929,7 +972,7 @@ public class GamePanel extends JPanel implements Runnable {
 							b.right_explosion_limit = j;
 							
 							if (this.map_structure[b_tile_row][b_tile_col+j+1].getDestructible() == true) {
-								
+								this.map_structure[b_tile_row][b_tile_col+j+1].setDisappearing(true);
 								tiles_to_update.put(this.map_structure[b_tile_row][b_tile_col+j+1], new Coordinates(b_tile_row,b_tile_col+j+1));
 							}
 							break;							
@@ -957,7 +1000,7 @@ public class GamePanel extends JPanel implements Runnable {
 						if (this.map_structure[b_tile_row+j+1][b_tile_col].getModel_num() != 1 && !b.processed_explosion) {
 							b.down_explosion_limit = j;
 							if (this.map_structure[b_tile_row+j+1][b_tile_col].getDestructible() == true) {
-								
+								this.map_structure[b_tile_row+j+1][b_tile_col].setDisappearing(true);
 								tiles_to_update.put(this.map_structure[b_tile_row+j+1][b_tile_col], new Coordinates(b_tile_row+j+1,b_tile_col));
 							}
 							break;
@@ -986,7 +1029,7 @@ public class GamePanel extends JPanel implements Runnable {
 						if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getModel_num() != 1 && !b.processed_explosion) {
 							b.left_explosion_limit = j;
 							if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getDestructible() == true) {
-								
+								this.map_structure[b_tile_row][b_tile_col-(j+1)].setDisappearing(true);
 								tiles_to_update.put(this.map_structure[b_tile_row][b_tile_col-(j+1)], new Coordinates(b_tile_row+j+1,b_tile_col));
 							}
 							break;
@@ -1064,7 +1107,8 @@ public class GamePanel extends JPanel implements Runnable {
 				 * bisogna creare can_disappear come campo della classe e fare questo controllo in un'altra funzione
 				 * a parte, e non bombdamage
 				 */
-				if (can_disappear) {						
+				if (can_disappear) {
+					c.setReallyDead();
 					iterator.remove();
 				}
 			}

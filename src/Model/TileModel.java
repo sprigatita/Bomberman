@@ -13,10 +13,18 @@ public class TileModel {
 	private PowerUpModel power_up;
 	private boolean collision = true;
 	private boolean is_destructible = true;
-	public int destruction_counter = 20;
+	public int destruction_counter = 40;
 	public BombModel placedBomb = null;
+	public boolean is_disappearing = false;
 	public BombModel getPlacedBomb() {
 		return placedBomb;
+	}
+	
+	public boolean isDisappearing() {
+		return this.is_disappearing;
+	}
+	public void setDisappearing(boolean b) {
+		this.is_disappearing = b;
 	}
 	
 	private boolean border = false;

@@ -11,7 +11,7 @@ import javax.imageio.ImageIO;
 import Model.Direction;
 
 @SuppressWarnings("deprecation")
-public abstract class CharacterView extends EntityView implements Observer {
+public abstract class CharacterView extends EntityView{
     protected BufferedImage sprite;
     protected BufferedImage dead_sprite;
     protected BufferedImage[] leftAnimations = new BufferedImage[3];
