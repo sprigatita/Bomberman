@@ -23,8 +23,10 @@ public abstract class Character extends Entity{
 	}
 	
 	public void revive() {
+		this.death_animation_counter = 60;
 		this.dead = false;
 		this.is_actually_dead = false;
+		
 	}
 	
 	public int getMoveSpeed() {

@@ -38,6 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
 	public static final int FINAL_TILE_SIZE = TILE_SIZE*SCALING_CONST;
 	private Random random_gen = new Random();
 	public FinestraDiGioco fdg;
+	public Menu menu = new Menu();
 	AudioManager audio_samples = new AudioManager();
 	EntityInstantiator enemies = new EntityInstantiator("src/resources/enemies.txt");
 	ArrayList<Character> damageableCharacters = new ArrayList<Character>();
@@ -57,6 +58,8 @@ public class GamePanel extends JPanel implements Runnable {
 	HashMap<TileModel, LaserUtil> laser_tiles = this.enemies.laser_tiles;
 	HashMap<Direction, BufferedImage> laser_views = new HashMap<Direction, BufferedImage>();
 	
+	boolean next_level = false;
+	boolean game_over = false;
 	int current_level = 0;
 	boolean level_over = false;
 	boolean pause = false;
@@ -80,18 +83,37 @@ public class GamePanel extends JPanel implements Runnable {
 	//Dati per la creazione della mappa, un array di TileModel che rappresenta la struttura della mappa
 	//sotto forma di matrice di tiles, una view che contiene tutti i diversi tiles istanziata a partire da un nome di una mappa e da 
 	//una configurazione che contiene tutti i valori dei tiles sui quali rimuovere la collision o rimuovere la distruttibilità. 
-	TileView terrain = new TileView("green_village");
-	
+	TileView[] maps = new TileView[5];
+	TileView terrain;
 	//i seguenti due array andranno ricavati da un file txt di configurazione, sono momentaneamente impostati a mano per testare
+	int[][] collision_config_list = {
+			{1},
+			{1},
+			{}
+	};
+	
 	int[] collision_config = {1};
-	int[] destructible_config = {14,12,8,9, 10, 11, 2,6,7,3,15, 17,16,18,13, 19, 22, 23};
-	int[] border_config = {12,8,9,24,13,14,2,6,7,21,3,15};
+	int[][] destructible_config_list = {
+			{14,12,8,9, 10, 11, 2,6,7,3,15, 17,16,18,13, 19, 22, 23},
+			{12,2,3,4,5,6,7,8,9,10,11,1,13,14,16,17},
+			{}		
+	};
+//	int[] destructible_config = {14,12,8,9, 10, 11, 2,6,7,3,15, 17,16,18,13, 19, 22, 23};
+	int[] destructible_config = {12,2,3,4,5,6,7,8,9,10,11,1,13,14,16,17};
+	
+	int[][] border_config_list = {
+			{12,8,9,24,13,14,2,6,7,21,3,15},
+			{12,2,3,4,5,6,11,7,16,17,5,13,10,9},
+			{}
+	};
+//	int[] border_config = {12,8,9,24,13,14,2,6,7,21,3,15};
+	int[] border_config = {12,2,3,4,5,6,11,7,16,17,5,13,10,9};
 	int[] myIntArray = new int[3];
 	String[] levels = new String[2];
 	String[] EntityInit = new String[2];
-	MapModel map = new MapModel("src/resources/map.txt", collision_config, destructible_config, border_config);
+	MapModel map;
 	
-	TileModel[][] map_structure = map.getMapStructure();
+	TileModel[][] map_structure;
 	ControlsHandler controls;
 	
 	//Tile da aggiornare in seguito alla collisione con un'esplosione. E' momentaneamente necessario l'uso di una mappa con un oggetto di tipo
@@ -110,8 +132,12 @@ public class GamePanel extends JPanel implements Runnable {
 		return Y_TILES*FINAL_TILE_SIZE;
 	}
 	
-	private void instantiateViews(int i) {
-		
+	private void instantiateMaps() {
+		this.maps[0] = new TileView("green_village", 24, ".png");
+		this.maps[1] = new TileView("blue_castle", 17, ".jpg");
+		this.terrain = this.maps[current_level];
+		this.map = new MapModel(this.levels[0], collision_config_list[0], destructible_config_list[0], border_config_list[0]);
+		this.map_structure = map.getMapStructure();
 	}
 	
 	private void instantiateLevels() {
@@ -138,12 +164,16 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	public void changeLevel() {
-		map = new MapModel("src/resources/map.txt", collision_config, destructible_config, border_config);
+//		this.current_level++;
+		System.out.println(current_level);
+//		map = new MapModel("src/resources/map2.txt", collision_config, destructible_config, border_config);
+		this.map = new MapModel(this.levels[current_level], collision_config_list[current_level], destructible_config_list[current_level], border_config_list[current_level]);
 		this.map_structure = map.getMapStructure();
 		this.enemies = new EntityInstantiator(this.EntityInit[this.current_level]);
+		this.terrain = this.maps[this.current_level];
 		damageableCharacters = new ArrayList<Character>();
 		moveableCharacters = new ArrayList<Character>();
-		characterModelsView = new HashMap<Character, EntityView>();
+		characterModelsView = this.enemies.characterModelsView;
 		projectiles = this.enemies.projectiles;
 		traps = this.enemies.traps;
 		laser_tiles = this.enemies.laser_tiles;
@@ -156,15 +186,16 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		Bomberman b = Bomberman.getInstance();
 		BombermanView bw = new BombermanView();
+		b.addObserver(bw);
 		b.setPos_x(480);
 		b.setPos_y(480);
-		b.setHealth(5);
+		b.setHealth(1);
 //		Enemy e = new Walker();
 //		Enemy e2 = new Laserer(96,96,Direction.DOWN, this.laser_tiles);
 //		Enemy e3 = new Shooter(projectiles);
 //		Enemy boss = new FatBoss();
 //		Boss1View bw = new Boss1View();
-		EnemyView ev = new WalkerView();
+//		EnemyView ev = new WalkerView();
 //		this.moveableCharacters.add(e2);
 ////		this.moveableCharacters.add(e3);
 ////		this.moveableCharacters.add(e);
@@ -174,7 +205,7 @@ public class GamePanel extends JPanel implements Runnable {
 ////		this.damageableCharacters.add(e);
 ////		this.damageableCharacters.add(e2);
 ////		this.damageableCharacters.add(e3);
-		b.addObserver(bw);
+//		b.addObserver(bw);
 //		e.addObserver(ev);
 //		boss.addObserver(bw);
 //		this.characterModelsView.put(e2, ev);
@@ -196,9 +227,9 @@ public class GamePanel extends JPanel implements Runnable {
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
 	public GamePanel() {
 		this.instantiateLevels();
+		this.instantiateMaps();
 		this.instantiateEnemies();
 		this.instantiateCharacters();
-		this.instantiateLevels();
 		this.setPreferredSize(new Dimension((X_TILES*FINAL_TILE_SIZE),(Y_TILES*FINAL_TILE_SIZE)));
 		this.setBackground(new Color(107, 106, 104));
 		controls = new ControlsHandler();
@@ -264,12 +295,23 @@ public class GamePanel extends JPanel implements Runnable {
 	@Override
 	public void paintComponent(Graphics g) {
 		
-		if (this.death_screen_timer >= 0) {
-			if (this.death_screen_timer == 0) {
+		if (this.game_over) {
+			if (this.controls.isEnter()) {
+				this.game_over = false;
 				this.audio_samples.play(0);
 			}
+//			g.fillRect(0, 0, this.getPanelWidth(), this.getPanelHeight());
+			g.drawImage(this.menu.game_over, 0, 0, GamePanel.getPanelWidth(), GamePanel.getPanelHeight(), null);
+//			g.drawString("YOU DIED. PRESS ENTER TO RESTART THE LEVEL", 300,300);
+//			this.death_screen_timer-=1;
+
+		}
+		else if (this.next_level) {
+			if (this.controls.isEnter()) {
+				this.next_level = false;
+			}
 			g.fillRect(0, 0, this.getPanelWidth(), this.getPanelHeight());
-			this.death_screen_timer-=1;
+//			this.death_screen_timer-=1;
 
 		}
 		else {
@@ -323,21 +365,28 @@ public class GamePanel extends JPanel implements Runnable {
 	public void run() {
 		
 		while(true) {
-			if (this.death_screen_timer >= 0) {
+			if (this.game_over) {
+				repaint();
+				continue;
+			}
+			if (this.next_level) {
 				repaint();
 				continue;
 			}
 			if(Bomberman.getInstance().isReallyDead()) {
+				System.out.println("ded");
 				this.audio_samples.clips.get(0).stop();
 				Bomberman.getInstance().revive();
 				this.changeLevel();
 				this.instantiateCharacters();
-				this.death_screen_timer = 10000;
+				this.game_over = true;
 			}
-			if (this.moveableCharacters.size() == 1) {
+			else if (this.moveableCharacters.size() == 1 && this.moveableCharacters.get(0) instanceof Bomberman) {
+				System.out.println("changed level");
 				this.current_level+=1;
 				this.changeLevel();
 				this.instantiateCharacters();
+				this.next_level = true;
 				
 			}
 //			if (levelcounter == 100) {
@@ -472,10 +521,13 @@ public class GamePanel extends JPanel implements Runnable {
 			break;
 		case 2:
 			Bomberman.getInstance().setKicksBombs();
+			break;
 		case 5:
 			Bomberman.getInstance().setGhosting_timer(200);
+			break;
 		case 6:
 			Bomberman.getInstance().increaseExplosionRange();
+			break;
 		default:
 		}
 	}
@@ -807,7 +859,7 @@ public class GamePanel extends JPanel implements Runnable {
 				tile.setModel_num(1);
 				boolean has_power_up = tile.hasPowerUp();
 				if (has_power_up) {	
-					int i = this.random_gen.nextInt(6,7);
+					int i = this.random_gen.nextInt(7);
 					PowerUpModel power_up = new PowerUpModel(i, tile.getMatrix_pos_row(), tile.getMatrix_pos_col());
 					this.powerUpList.add(power_up);
 					tile.setPower_up(power_up);
@@ -938,7 +990,7 @@ public class GamePanel extends JPanel implements Runnable {
 					if (b_tile_row-(j+1) >= 0 && b_tile_row-(j+1) < Y_TILES && b_tile_col >= 0 && b_tile_col < X_TILES) {
 						//se viene incontrato dalla fiamma un tile con collisione attiva si interrompe il disegno della fiamma e si aggiunge il tile 
 						//ai tile da modificare (tiles_to_update) se il tile è distruttibile.
-						if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getModel_num() != 1 && !b.processed_explosion) {
+						if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getCollision() && !b.processed_explosion) {
 							b.up_explosion_limit = j;
 							if (this.map_structure[b_tile_row-(j+1)][b_tile_col].getDestructible() == true) {
 								this.map_structure[b_tile_row-(j+1)][b_tile_col].setDisappearing(true);
@@ -968,7 +1020,7 @@ public class GamePanel extends JPanel implements Runnable {
 				}
 				for (int j = 0; j < b.right_explosion_limit; j++) {
 					if (b_tile_row >= 0 && b_tile_row < Y_TILES && b_tile_col+j+1 >= 0 && b_tile_col+j+1 < X_TILES) {
-						if (this.map_structure[b_tile_row][b_tile_col+j+1].getModel_num() != 1 && !b.processed_explosion) {
+						if (this.map_structure[b_tile_row][b_tile_col+j+1].getCollision() && !b.processed_explosion) {
 							b.right_explosion_limit = j;
 							
 							if (this.map_structure[b_tile_row][b_tile_col+j+1].getDestructible() == true) {
@@ -997,7 +1049,7 @@ public class GamePanel extends JPanel implements Runnable {
 				for (int j = 0; j < b.down_explosion_limit; j++) {
 					if (b_tile_row+j+1 >= 0 && b_tile_row+j+1 < Y_TILES && b_tile_col >= 0 && b_tile_col < X_TILES) {
 						
-						if (this.map_structure[b_tile_row+j+1][b_tile_col].getModel_num() != 1 && !b.processed_explosion) {
+						if (this.map_structure[b_tile_row+j+1][b_tile_col].getCollision() && !b.processed_explosion) {
 							b.down_explosion_limit = j;
 							if (this.map_structure[b_tile_row+j+1][b_tile_col].getDestructible() == true) {
 								this.map_structure[b_tile_row+j+1][b_tile_col].setDisappearing(true);
@@ -1026,7 +1078,7 @@ public class GamePanel extends JPanel implements Runnable {
 				}
 				for (int j = 0; j < b.left_explosion_limit; j++) {
 					if (b_tile_row >= 0 && b_tile_row < Y_TILES && b_tile_col-(j+1) >= 0 && b_tile_col-(j+1) < X_TILES) {	
-						if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getModel_num() != 1 && !b.processed_explosion) {
+						if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getCollision() && !b.processed_explosion) {
 							b.left_explosion_limit = j;
 							if (this.map_structure[b_tile_row][b_tile_col-(j+1)].getDestructible() == true) {
 								this.map_structure[b_tile_row][b_tile_col-(j+1)].setDisappearing(true);

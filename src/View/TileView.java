@@ -16,16 +16,20 @@ public class TileView {
 	
 	
 	String mapName;
-	private int num_of_samples = 24;
-	private BufferedImage[] tileSamples = new BufferedImage[num_of_samples];
+	private int num_of_samples;
+	private String ext;
+	private BufferedImage[] tileSamples;
 	private BufferedImage[] exploding_block = new BufferedImage[6];
 	
 	public BufferedImage getTileSamples(int i) {
 		return tileSamples[i];
 	}
 	
-	public TileView(String mapName) {
+	public TileView(String mapName, int samples, String ext) {
+		this.ext = ext;
 		this.mapName = mapName + "/";
+		this.num_of_samples = samples;
+		this.tileSamples = new BufferedImage[num_of_samples];
 		createBasicTerrain();
 	}
 	
@@ -35,12 +39,15 @@ public class TileView {
 			String filename = "src/resources/";
 			
 			for (int n = 1; n <= num_of_samples; n++) {
-					tileSamples[n-1] = ImageIO.read(new File(filename + mapName + n + ".png"));
-				}
-			for (int n = 1; n <= 6; n++) {
-				exploding_block[n-1] = ImageIO.read(new File(filename + mapName + "exploding/"+ n + ".png"));
+					tileSamples[n-1] = ImageIO.read(new File(filename + mapName + n + ext));
+					System.out.println("test" + n);
 			}
-
+			System.out.println("final test");
+			for (int n = 1; n <= 6; n++) {
+				exploding_block[n-1] = ImageIO.read(new File(filename + "green_village/" + "exploding/"+ n + ".png"));
+				System.out.println("test"+n);
+			}
+			System.out.println("destr");
 		} catch (IOException e) {
 			e.printStackTrace(); //Pos nel programmaq in cui è avvenuto l'errore
 		}

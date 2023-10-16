@@ -20,6 +20,7 @@ public class ControlsHandler implements KeyListener{
 	private boolean right;
 	private boolean space;
 	private boolean kicks_bomb;
+	private boolean enter;
 	
 	public ControlsHandler() {
 	}
@@ -32,7 +33,10 @@ public class ControlsHandler implements KeyListener{
 		return down;
 	}
 
-
+	public boolean isEnter() {
+		return enter;
+	}
+	
 	public boolean isLeft() {
 		return left;
 	}
@@ -88,6 +92,9 @@ public class ControlsHandler implements KeyListener{
 			case KeyEvent.VK_E:
 				kicks_bomb = true;
 				break;
+			case KeyEvent.VK_ENTER:
+				this.enter = true;
+				break;
 				
 			default:
 			
@@ -119,6 +126,9 @@ public class ControlsHandler implements KeyListener{
 				break;
 			case KeyEvent.VK_E:
 				kicks_bomb = false;
+				break;
+			case KeyEvent.VK_ENTER:
+				this.enter = false;
 				break;
 			default:
 			
