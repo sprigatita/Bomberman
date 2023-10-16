@@ -16,7 +16,7 @@ import java.io.IOException;
 public class FinestraDiGioco extends JFrame{
     public FinestraDiGioco() {
         this.init();
-		this.setPreferredSize(new Dimension(500,500));
+//		this.setPreferredSize(new Dimension(500,500));
     }
 
     public void init() {
@@ -28,12 +28,14 @@ public class FinestraDiGioco extends JFrame{
 
         // Crea il pannello delle informazioni
         JPanel infoPanel = createInfoPanel();
+        
 
         // Crea il GamePanel e imposta il listener con l'istanza corrente di finestradigioco
         GamePanel gamePanel = new GamePanel();
+        TopBar top = new TopBar(gamePanel);
         gamePanel.fdg = this;
         // Aggiungi il pannello delle informazioni sopra al GamePanel
-        this.add(infoPanel);
+        this.add(top);
         this.add(gamePanel);
 
         this.pack();
@@ -46,16 +48,25 @@ public class FinestraDiGioco extends JFrame{
      * noi le dovremo prendere dalla classe user quindi magari serve istanziare questo 
      * panel altrove.
      */
-    JLabel usernameLabel = new JLabel("Username: placeholder");
-    JLabel scoreLabel = new JLabel("Score: "); // Ottieni lo score dall'utente
+    JLabel usernameLabel = new JLabel("USERNAME: placeholder",SwingConstants.LEFT);
+    JLabel scoreLabel = new JLabel("SCORE: ", SwingConstants.LEFT); // Ottieni lo score dall'utente
     private JPanel createInfoPanel() {
+//    	usernameLabel.setLayout(null);
+    	usernameLabel.setPreferredSize(new Dimension(300,300));
         JPanel infoPanel = new JPanel();
-        
-
-
+        infoPanel.setLayout(new GridLayout(1,3));
+        infoPanel.setPreferredSize(new Dimension(100,100));
+//        this.usernameLabel.setPreferredSize(new Dimension(1000,50));
+//        this.usernameLabel.setOpaque(true);
+//        this.usernameLabel.setAlignmentX(RIGHT_ALIGNMENT);
+//        this.scoreLabel.setAlignmentX(RIGHT_ALIGNMENT);
+//        this.usernameLabel.setBackground(Color.BLACK);
         // Scelta del layout orizzontale
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
-
+//        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
+        this.scoreLabel.setFont(new Font("Copperplate Gothic Bold", Font.BOLD, 20));
+//        this.scoreLabel.setForeground(Color.BLUE);
+        this.usernameLabel.setFont(new Font("Copperplate Gothic Bold", Font.BOLD, 20));
+//        this.usernameLabel.setHorizontalTextPosition(JLabel.CENTER);
 
         infoPanel.add(usernameLabel);
         infoPanel.add(scoreLabel);
@@ -63,6 +74,8 @@ public class FinestraDiGioco extends JFrame{
 
         return infoPanel;
     }
+    
+
     
 //    public static void main(String[] args) {
 //        SwingUtilities.invokeLater(() -> {

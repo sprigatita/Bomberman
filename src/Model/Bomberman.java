@@ -15,6 +15,7 @@ public class Bomberman extends Character{
 	private int explosion_limit = 1;
 
 
+
 	
 	public int getExplosion_limit() {
 		return explosion_limit;

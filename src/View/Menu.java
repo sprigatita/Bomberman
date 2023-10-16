@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 public class Menu extends JPanel {
 	BufferedImage sfondo;
 	BufferedImage game_over;
+	BufferedImage top_bar;
 
 	private static final long serialVersionUID = 1L;
 
@@ -21,6 +22,7 @@ public class Menu extends JPanel {
 		try {
 			sfondo = ImageIO.read(new File("src/resources/menu/bg-menu.png"));
 			game_over = ImageIO.read(new File("src/resources/menu/game_over.png"));
+			top_bar = ImageIO.read(new File("src/resources/menu/topbar.png"));
 		} catch (IOException e) {
 			
 			// TODO Auto-generated catch block

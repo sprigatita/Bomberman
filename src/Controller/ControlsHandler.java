@@ -3,8 +3,12 @@ package Controller;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import javax.swing.JButton;
+import javax.swing.JPanel;
+
 import Model.Bomberman;
 import View.BombermanView;
+import View.FinestraDiGioco;
 import View.GamePanel;
 
 public class ControlsHandler implements KeyListener{
@@ -21,8 +25,13 @@ public class ControlsHandler implements KeyListener{
 	private boolean space;
 	private boolean kicks_bomb;
 	private boolean enter;
+	private boolean pausing = true;
 	
-	public ControlsHandler() {
+	private GamePanel gp;
+	private FinestraDiGioco fdg;
+	public ControlsHandler(GamePanel gp, FinestraDiGioco fdg) {
+		this.gp = gp;
+		this.fdg = fdg;
 	}
 	
 	public boolean isUp() {
@@ -50,6 +59,10 @@ public class ControlsHandler implements KeyListener{
 		return space;
 	}
 	
+	public boolean isPause() {
+		return pausing;
+	}
+	
 	public boolean canKickBomb() {
 		return this.kicks_bomb;
 	}
@@ -66,6 +79,8 @@ public class ControlsHandler implements KeyListener{
 		int key_code = e.getKeyCode();
 		
 		switch(e.getKeyCode()) {
+		
+		
 			case KeyEvent.VK_W:
 
 				up = true;					
@@ -96,6 +111,9 @@ public class ControlsHandler implements KeyListener{
 				this.enter = true;
 				break;
 				
+			case KeyEvent.VK_P:
+				gp.pause = !gp.pause;
+				break;
 			default:
 			
 		}
@@ -129,6 +147,11 @@ public class ControlsHandler implements KeyListener{
 				break;
 			case KeyEvent.VK_ENTER:
 				this.enter = false;
+				break;
+				
+			case KeyEvent.VK_P:
+				System.out.println("P release");
+				this.pausing = false;
 				break;
 			default:
 			

@@ -11,6 +11,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -62,9 +63,9 @@ public class GamePanel extends JPanel implements Runnable {
 	boolean game_over = false;
 	int current_level = 0;
 	boolean level_over = false;
-	boolean pause = false;
+	public boolean pause = false;
 	int pause_timer = 0;
-	
+	public Pause pause_menu;
 //	ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	ArrayList<Projectile> projectiles = this.enemies.projectiles;
 //	ArrayList<TrapModel> traps = new ArrayList<TrapModel>();
@@ -165,7 +166,7 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public void changeLevel() {
 //		this.current_level++;
-		System.out.println(current_level);
+
 //		map = new MapModel("src/resources/map2.txt", collision_config, destructible_config, border_config);
 		this.map = new MapModel(this.levels[current_level], collision_config_list[current_level], destructible_config_list[current_level], border_config_list[current_level]);
 		this.map_structure = map.getMapStructure();
@@ -189,7 +190,7 @@ public class GamePanel extends JPanel implements Runnable {
 		b.addObserver(bw);
 		b.setPos_x(480);
 		b.setPos_y(480);
-		b.setHealth(1);
+		b.setHealth(2);
 //		Enemy e = new Walker();
 //		Enemy e2 = new Laserer(96,96,Direction.DOWN, this.laser_tiles);
 //		Enemy e3 = new Shooter(projectiles);
@@ -221,7 +222,7 @@ public class GamePanel extends JPanel implements Runnable {
 			c.addObserver(ew);
 			this.damageableCharacters.add(c);
 		}
-		System.out.println(this.moveableCharacters.size());
+
 	}
 	
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
@@ -232,7 +233,12 @@ public class GamePanel extends JPanel implements Runnable {
 		this.instantiateCharacters();
 		this.setPreferredSize(new Dimension((X_TILES*FINAL_TILE_SIZE),(Y_TILES*FINAL_TILE_SIZE)));
 		this.setBackground(new Color(107, 106, 104));
-		controls = new ControlsHandler();
+		this.setLayout(null);
+		pause_menu = new Pause();
+		pause_menu.setBounds(100,100,300,300);
+
+
+		controls = new ControlsHandler(this, fdg);
 		this.addKeyListener(controls);
 		this.setFocusable(true);
 		audio_samples.clips.get(0).start();
@@ -260,7 +266,7 @@ public class GamePanel extends JPanel implements Runnable {
 			else {
 				iterator.remove();
 			}
-			System.out.println(traps.size());
+
 			g.drawImage(ew.sprite, t.getCol()*FINAL_TILE_SIZE, t.getRow()*FINAL_TILE_SIZE, FINAL_TILE_SIZE, FINAL_TILE_SIZE, null);
 		}
 	}
@@ -294,8 +300,10 @@ public class GamePanel extends JPanel implements Runnable {
 	//a tutti i nemici
 	@Override
 	public void paintComponent(Graphics g) {
-		
-		if (this.game_over) {
+		if (this.pause) {
+			System.out.println("in pause");
+		}
+		else if (this.game_over) {
 			if (this.controls.isEnter()) {
 				this.game_over = false;
 				this.audio_samples.play(0);
@@ -335,8 +343,10 @@ public class GamePanel extends JPanel implements Runnable {
 						
 					}
 					else {
-						
-						g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);				
+						if (c.invulnerability%3 == 0) {
+							g.drawImage(this.characterModelsView.get(c).getSprite(), c.getPos_x()+this.characterModelsView.get(c).getSpriteWidth()/2, c.getPos_y(), this.characterModelsView.get(c).getSpriteWidth()*2, this.characterModelsView.get(c).getSpriteHeight()*2, null);				
+							
+						}
 					}
 				}
 			}
@@ -365,6 +375,28 @@ public class GamePanel extends JPanel implements Runnable {
 	public void run() {
 		
 		while(true) {
+//			System.out.println(this.pause);
+//			if (this.pause_timer > 0) {
+//				this.pause_timer-=1;
+//			}
+//			if (this.controls.isPause()) {
+//				System.out.println("actual" +this.pause);
+//				if (this.pause_timer <= 0) {
+//					System.out.println("inside");
+//					boolean b1 = this.pause;
+//					boolean b = !pause;
+//					System.out.println("next pause " + b + b1);
+//					this.pause = b;
+//					System.out.println("after" +this.pause);
+//					this.pause_timer = 100;
+//				}
+//			}
+			
+			if (this.pause == true) {
+
+				repaint();
+				continue;
+			}
 			if (this.game_over) {
 				repaint();
 				continue;
@@ -434,30 +466,39 @@ public class GamePanel extends JPanel implements Runnable {
 //					}
 //				}
 //			}
-			for (Character c : this.moveableCharacters) {
-				c.move(FINAL_TILE_SIZE, map_structure, controls);
-			}
-			for (Projectile p : this.projectiles) {
-				p.move(FINAL_TILE_SIZE, map_structure, controls);
+			else {
 				
-			}
-			
-			manageLasers();
-			manageProjectiles();
-			kickBombs();
-			slideBombs();
-			checkPowerUp();
-			updateBombTimer();
-			placeBomb();
-			explodeBlocks();
-			manageDeadCharacters();
-			repaint();
-			
-			//Lo sleep lancia un'eccezione non gestita
-			try {
-				Thread.sleep(30);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				
+				for (Character c : this.moveableCharacters) {
+					c.move(FINAL_TILE_SIZE, map_structure, controls);
+					if (c.invulnerability>0) {
+						
+						c.invulnerability-=1;
+					}
+					
+				}
+				for (Projectile p : this.projectiles) {
+					p.move(FINAL_TILE_SIZE, map_structure, controls);
+					
+				}
+				
+				manageLasers();
+				manageProjectiles();
+				kickBombs();
+				slideBombs();
+				checkPowerUp();
+				updateBombTimer();
+				placeBomb();
+				explodeBlocks();
+				manageDeadCharacters();
+				repaint();
+				
+				//Lo sleep lancia un'eccezione non gestita
+				try {
+					Thread.sleep(30);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	
@@ -550,7 +591,7 @@ public class GamePanel extends JPanel implements Runnable {
 		for (BombModel bomb : bombs) {
 			
 			if (b.getPower_up() != null && !bomb.isCan_slide()  && b.getPower_up().getId() == 2 &&  controls.canKickBomb()) {
-				System.out.println("test");
+
 				bomb.setSlide_dir(b.getDir());
 				bomb.setCan_slide(true);
 			}
@@ -738,7 +779,7 @@ public class GamePanel extends JPanel implements Runnable {
 		}
 		if (b.getGhosting_timer() > 0) {
 			b.decreaseGhosting_timer();
-			System.out.println(b.getGhosting_timer());
+
 		}
 		else {
 			ghosting = false;

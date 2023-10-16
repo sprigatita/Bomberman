@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 public class User {
 	
+	public int level = 0;
 	public String username;
 	public BufferedImage propic;
 	private int score;

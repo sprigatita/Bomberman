@@ -12,6 +12,7 @@ public abstract class Character extends Entity{
 	protected int move_speed = 4;
 	protected Direction dir = Direction.UP;
 	private boolean is_actually_dead = false;
+	public int invulnerability = 0;
 	
 	
 	public void setReallyDead() {
@@ -65,11 +66,17 @@ public abstract class Character extends Entity{
 	}
 	
 	public void damage() {
-		this.health -= 1;
-		if (this.health == 0) {
-			this.dead = true;
+		if (this.invulnerability <= 0) {
+			
+			this.health -= 1;
+			if (this.health == 0) {
+				this.dead = true;
+			}
+			else {
+				this.invulnerability = 100;
+			}
+			
 		}
-		
 	}
 	public boolean isDead() {
 		return dead;
