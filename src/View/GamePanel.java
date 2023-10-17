@@ -61,7 +61,7 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	boolean next_level = false;
 	boolean game_over = false;
-	int current_level = 0;
+	int current_level;
 	boolean level_over = false;
 	public boolean pause = false;
 	int pause_timer = 0;
@@ -78,7 +78,7 @@ public class GamePanel extends JPanel implements Runnable {
 	ArrayList<PowerUpModel> powerUpList = new ArrayList<PowerUpModel>();
 	
 	//Dati relativi al giocatore, ai nemici, modelli, view associate e ----da aggiungere--- lista di tutti i nemici sulla mappa
-	User currentUser = new User();
+	User currentUser;
 	
 	
 	//Dati per la creazione della mappa, un array di TileModel che rappresenta la struttura della mappa
@@ -136,8 +136,12 @@ public class GamePanel extends JPanel implements Runnable {
 	private void instantiateMaps() {
 		this.maps[0] = new TileView("green_village", 24, ".png");
 		this.maps[1] = new TileView("blue_castle", 17, ".jpg");
-		this.terrain = this.maps[current_level];
-		this.map = new MapModel(this.levels[0], collision_config_list[0], destructible_config_list[0], border_config_list[0]);
+		this.terrain = this.maps[this.currentUser.current_level];
+//		this.map = new MapModel(this.levels[1], collision_config_list[1], 
+//				destructible_config_list[1], border_config_list[1]);
+		System.out.println("curr level" + this.currentUser.current_level);
+		this.map = new MapModel(this.levels[this.currentUser.current_level], collision_config_list[this.currentUser.current_level], 
+				destructible_config_list[this.currentUser.current_level], border_config_list[this.currentUser.current_level]);
 		this.map_structure = map.getMapStructure();
 	}
 	
@@ -226,7 +230,12 @@ public class GamePanel extends JPanel implements Runnable {
 	}
 	
 	//All'interno del costruttore creiamo il thread, lo facciamo partire ed inizializziamo tutti gli handler e le caratteristiche del panel.
-	public GamePanel() {
+	public GamePanel(User user) {
+		System.out.println("gp user level" + user.current_level);
+		this.currentUser = user;
+		System.out.println("after level" + this.currentUser.current_level);
+		this.current_level = currentUser.current_level;
+		System.out.println("after again" + this.current_level);
 		this.instantiateLevels();
 		this.instantiateMaps();
 		this.instantiateEnemies();

@@ -14,12 +14,12 @@ import java.io.IOException;
 
 
 public class FinestraDiGioco extends JFrame{
-    public FinestraDiGioco() {
-        this.init();
+    public FinestraDiGioco(User user) {
+        this.init(user);
 //		this.setPreferredSize(new Dimension(500,500));
     }
 
-    public void init() {
+    public void init(User user) {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
         this.setTitle("JBomberman");
@@ -31,7 +31,8 @@ public class FinestraDiGioco extends JFrame{
         
 
         // Crea il GamePanel e imposta il listener con l'istanza corrente di finestradigioco
-        GamePanel gamePanel = new GamePanel();
+        System.out.println("fdg user level" + user.current_level);
+        GamePanel gamePanel = new GamePanel(user);
         TopBar top = new TopBar(gamePanel);
         gamePanel.fdg = this;
         // Aggiungi il pannello delle informazioni sopra al GamePanel
